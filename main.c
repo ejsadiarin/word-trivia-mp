@@ -11,8 +11,12 @@ typedef struct {
 
 typedef struct {
   Word20 word;
-  TriviaType trivia;
+  TriviaType trivia[10];
 } WordType;
+
+typedef struct {
+
+} Player;
 
 // at most 10 trivia per word (so word struct?)
 // there can be at most 150 entries/words (answers in the game), but a word can have at most 10 trivia/clues
@@ -21,6 +25,8 @@ typedef struct {
 int checkWinningConditions() {
   // if 1 player wins, otherwise (0) not;
   // WINS: if player answered atleast 1 question for each row in 2D array of characters
+  // loop through each row and check if there is at least one * (correct answer), if not, return 0 (not a win)
+
   return 0;
 }
 
