@@ -88,6 +88,7 @@ void generateRowLetters(WordType word[], int size) {
 
 // Determine if the player wins based on contents in the 2D array of characters (2D strings).
 int checkWinningConditions(BoardInterface board[10][10]) {
+  // given the 2d array of characters (array of strings), search for *, if found
   // if 1 player wins, otherwise (0) not;
   // WINS: if player answered atleast 1 question for each row in 2D array of characters
   // loop through each row and check if there is at least one * (correct answer), if not, return 0 (not a win)
@@ -96,6 +97,7 @@ int checkWinningConditions(BoardInterface board[10][10]) {
 }
 
 // Determine if the game is over based on the contents in the 2D array of characters.
+// calls checkWinningConditions()
 int IsGameOver() {
 
 }
