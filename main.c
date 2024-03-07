@@ -25,17 +25,13 @@ typedef struct {
   TriviaType trivia[10];
 } WordType;
 
-// this stores the data created by admin (do i really need this?)
-typedef struct {
-  Word20 wordName;
-  TriviaType trivia[10];
-} ActualBoard;
 
-// the char array to be displayed
-typedef struct {
-  Word20 wordName;
-  TriviaType trivia[10];
-} BoardInterface;
+// TODO: the char array to be displayed
+struct Board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
+// typedef struct {
+//   Word20 wordName;
+//   TriviaType trivia[10];
+// } BoardInterface;
 
 
 
@@ -87,8 +83,9 @@ void generateRowLetters(WordType word[], int size) {
 // there can be at most 150 entries/words (answers in the game), but a word can have at most 10 trivia/clues
 
 // Determine if the player wins based on contents in the 2D array of characters (2D strings).
-int checkWinningConditions(BoardInterface board[10][10]) {
+int checkWinningConditions(Board) {
   // given the 2d array of characters (array of strings), search for *, if found
+
   // if 1 player wins, otherwise (0) not;
   // WINS: if player answered atleast 1 question for each row in 2D array of characters
   // loop through each row and check if there is at least one * (correct answer), if not, return 0 (not a win)
@@ -105,21 +102,57 @@ int IsGameOver() {
 // Menu for the Admin Phase
 // each word has at most 10 trivia (relations):
 void AdminMenu() {
-  int input;
-  printf("\n--------------Admin Menu--------------\n");
-  printf("[1] Add Word \n");
-  printf("[2] Add Trivia\n");
-  printf("[3] Modify Entry\n");
-  printf("[4] Delete Word\n");
-  printf("[5] Delete Clue\n");
-  printf("[6] View Words\n");
-  printf("[7] View Clues\n");
-  printf("[8] Export Data to File\n");
-  printf("[9] Import Data from a File\n");
-  printf("[0] Go Back to Main Menu\n");
-  printf("---------------------------------------\n");
-  printf("Enter your choice: ");
-  scanf("%d", &input);
+  int input, exitFlagToMainMenu = 0;
+  while (!exitFlagToMainMenu) {
+    printf("\n--------------Admin Menu--------------\n");
+    printf("[1] Add Word \n");
+    printf("[2] Add Trivia\n");
+    printf("[3] Modify Entry\n");
+    printf("[4] Delete Word\n");
+    printf("[5] Delete Clue\n");
+    printf("[6] View Words\n");
+    printf("[7] View Clues\n");
+    printf("[8] Export Data to File\n");
+    printf("[9] Import Data from a File\n");
+    printf("[0] Go Back to Main Menu\n");
+    printf("---------------------------------------\n");
+    printf("\nEnter your choice: ");
+    scanf("%d", &input);
+    switch (input) {
+      case 0:
+        exitFlagToMainMenu = 1;
+        break;
+      case 1:
+        // AddWord();
+        break;
+      case 2:
+        // AddTrivia();
+        break;
+      case 3:
+        // ModifyEntry();
+        break;
+      case 4:
+        // DeleteWord();
+        break;
+      case 5:
+        // DeleteClue();
+        break;
+      case 6:
+        // ViewWords();
+        break;
+      case 7:
+        // ViewClues();
+        break;
+      case 8:
+        // ExportDataToFile();
+        break;
+      case 9:
+        // ImportDataFromFile();
+        break;
+      default:
+        break;
+    }
+  }
 }
 
 int main() 

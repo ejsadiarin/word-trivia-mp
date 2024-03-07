@@ -60,3 +60,14 @@ Wrong! You guessed the word incorrectly! Choose another letter in the same row..
 
 --> if on last row and is correct then:
 Correct! You cleared every row in the board! You win!
+
+
+Board (is the "virtual board")
+- has letters
+
+when a letter is "picked":
+- gameLogic() is called -> displays Question and its Trivia/Clue
+
+
+FLOW:
+GamePhase -> createBoard() -> gameLogic() -> displayQuestion() -> displayTrivia() -> displayBoard()
