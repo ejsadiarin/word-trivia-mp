@@ -1,22 +1,10 @@
 find a way to get first letter (char) in string wordName - do loop for each word in list
 
 Board should be dynamic based on the word entries
+- Board is continuously mutated (each character is mutated with either '*' or '-')
 
-Board: [
-  ["strings", "word", "wordType"],
-  ["strings", "word", "wordType"],
-  ["strings", "word", "wordType"],
-  ["strings", "word", "wordType"],
-]
 
 - unique letters each row
-- each "letter" in the row is of type WordType (that has the trivia/clue)
-with : [
-  ["s", "w", "t"],
-  ["s", "w", "t"],
-  ["s", "w", "t"],
-  ["s", "w", "t"],
-]
 
 Game Phase looks like this (2D array of characters or array of strings):
 [
@@ -71,3 +59,7 @@ when a letter is "picked":
 
 FLOW:
 GamePhase -> createBoard() -> gameLogic() -> displayQuestion() -> displayTrivia() -> displayBoard()
+
+Game is over if:
+- all rows have at least one "*" on them (WIN)
+- one row have all "-" on them (LOSE)

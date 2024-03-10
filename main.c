@@ -1,13 +1,16 @@
 /*********************************************************************************************************
- This is to certify that this project is my own work, based on my personal efforts in studying and applying the concepts
- learned. I have constructed the functions and their respective algorithms and corresponding code by myself. The
- program was run, tested, and debugged by my own efforts. I further certify that I have not copied in part or whole or
- otherwise plagiarized the work of other students and/or persons.
-                                                                                  Edwin M. Sadiarin Jr., DLSU ID#12323004
+ This is to certify that this project is my own work, based on my personal
+ efforts in studying and applying the concepts learned. I have constructed the
+ functions and their respective algorithms and corresponding code by myself. The
+ program was run, tested, and debugged by my own efforts. I further certify that
+ I have not copied in part or whole or otherwise plagiarized the work of other
+ students and/or persons. Edwin M. Sadiarin Jr., DLSU ID#12323004
  *********************************************************************************************************/
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define MAX_BOARD_SIZE 10
 #define MIN_BOARD_SIZE 3
@@ -25,17 +28,28 @@ typedef struct {
   TriviaType trivia[10];
 } WordType;
 
-
-// TODO: the char array to be displayed
-struct Board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
+// // TODO: the char array to be displayed
+// struct Board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
 // typedef struct {
 //   Word20 wordName;
 //   TriviaType trivia[10];
 // } BoardInterface;
 
-
-
 // typedef WordType Board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
+
+char generateUniqueRandomLetter(char usedLetters[], int size) {
+  int i;
+  char letters[27] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  char letter = letters[rand() % (sizeof(letters) - 1)];
+  // check if the letter has already been used
+  for (i = 0; i < size; i++) {
+    if (usedLetters[i] == letter) {
+      return generateUniqueRandomLetter(usedLetters, size);
+    }
+  }
+
+  return letter;
+}
 
 /*
  * Populates the board based on the entries in the file.
@@ -44,59 +58,107 @@ struct Board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
  * --> generate random latters but unique for each row
  * --> make sure to have enough entries in database for the grid board
  * */
-void createBoard() {
-  int row, col;
+void createBoard(char board[][MAX_BOARD_SIZE], int *row, int *col) {
   char filename[50];
+  int i, j;
+  srand(time(NULL));
+  char usedLetters[MAX_BOARD_SIZE];
+  char uniqueLetter;
 
-  printf("\nEnter row of the board (min is 3, max is 10): ");
-  scanf("%d", &row);
-  printf("\nEnter col of the board (min is 3, max is 10): ");
-  scanf("%d", &col);
-
-  // check if row and col are within the range
-  while (row < MIN_BOARD_SIZE || row > MAX_BOARD_SIZE || col < MIN_BOARD_SIZE || col > MAX_BOARD_SIZE) {
-    printf("Invalid board size. Please try again.\n");
-    printf("\nEnter row of the board (min is 3, max is 10): ");
-    scanf("%d", &row);
-    printf("\nEnter col of the board (min is 3, max is 10): ");
-    scanf("%d", &col);
-  }
+  // printf("\nEnter row of the board (min is 3, max is 10): ");
+  // scanf("%d", row);
+  // printf("\nEnter col of the board (min is 3, max is 10): ");
+  // scanf("%d", col);
+  //
+  // // check if row and col are within the range (input validation)
+  // while (*row < MIN_BOARD_SIZE || *row > MAX_BOARD_SIZE ||
+  //        *col < MIN_BOARD_SIZE || *col > MAX_BOARD_SIZE) {
+  //   printf("Invalid board size. Please try again.\n");
+  //   printf("\nEnter row of the board (min is 3, max is 10): ");
+  //   scanf("%d", row);
+  //   printf("\nEnter col of the board (min is 3, max is 10): ");
+  //   scanf("%d", col);
+  // }
 
   // ask for filename
-  // generate random letters in the row
-  for (int i = 0; i < row; i++) {
-    for (int j = 0; j < col; j++) {
-      
+
+  // generate random letters for the board
+  for (i = 0; i < *row; i++) {
+    for (j = 0; j < *col; j++) {
+      uniqueLetter = generateUniqueRandomLetter(usedLetters, j);
+      usedLetters[j] = uniqueLetter;
+      // push the letter to board if not yet used
+      board[i][j] = uniqueLetter;
+      printf("%c ", board[i][j]);
     }
+    // printf("%s", board[i]);
+    printf("\n");
   }
+
   // make sure to have enough entries in database for the grid board
+
   // have displayBoard() in the end
 }
 
-void generateRowLetters(WordType word[], int size) {
-  int i, j;
-  // word[0].wordName = "apple";
-
-
-}
 // at most 10 trivia per word (so word struct?)
-// there can be at most 150 entries/words (answers in the game), but a word can have at most 10 trivia/clues
+// there can be at most 150 entries/words (answers in the game), but a word can
+// have at most 10 trivia/clues
 
-// Determine if the player wins based on contents in the 2D array of characters (2D strings).
-int checkWinningConditions(Board) {
+// Determine if the player wins based on contents in the 2D array of characters
+// (2D strings).
+int isWin(char board[][MAX_BOARD_SIZE], int row, int col) {
   // given the 2d array of characters (array of strings), search for *, if found
+  // TODO: to be called every after game phase
+  int i, j, winFlag;
+  for (i = 0; i < row; i++) {
+    winFlag = 0;
+    for (j = 0; j < col; j++) {
+      if (board[i][j] == '*') {
+        winFlag = 1;
+      }
+    }
+    if (!winFlag) {
+      return 0;
+    }
+  }
+  // returns 1 if player wins, otherwise (0);
+  // WINS: if player answered atleast 1 question for each row in 2D array of
+  // characters loop through each row and check if there is at least one *
+  // (correct answer), if not, return 0 (not a win)
 
-  // if 1 player wins, otherwise (0) not;
-  // WINS: if player answered atleast 1 question for each row in 2D array of characters
-  // loop through each row and check if there is at least one * (correct answer), if not, return 0 (not a win)
-
-  return 0;
+  return 1;
 }
 
-// Determine if the game is over based on the contents in the 2D array of characters.
-// calls checkWinningConditions()
-int IsGameOver() {
+// Determine if the game is over based on the contents in the 2D array of
+// characters. calls checkWinningConditions()
+// TODO: to be called every after question answered
+int checkRowStatus(char rowElems[], int *row) {
+  // check if col == numOfWrong (which is '-');
+  int i, canProceed = 0;
+  for (i = 0; i < *row; i++) {
+    if (rowElems[i] == '*') {
+      canProceed = 1;
+    }
+  }
 
+  return canProceed;
+}
+
+void gamePhase() {
+  int i = 0, j = 0; 
+  // for testing
+  int row = 10;
+  int col = 10;
+  // TODO: size of the board depends on the number of word entries in the "database"
+  char board[row][col];
+
+  /******INITIALIZE*******/
+  createBoard(board, &row, &col);
+
+  /******PLAYING PHASE*******/
+
+  /******CHECK GAME STATUS IF WIN OR LOSE*******/
+  isWin(board, row, col);
 }
 
 // Menu for the Admin Phase
@@ -119,44 +181,43 @@ void AdminMenu() {
     printf("\nEnter your choice: ");
     scanf("%d", &input);
     switch (input) {
-      case 0:
-        exitFlagToMainMenu = 1;
-        break;
-      case 1:
-        // AddWord();
-        break;
-      case 2:
-        // AddTrivia();
-        break;
-      case 3:
-        // ModifyEntry();
-        break;
-      case 4:
-        // DeleteWord();
-        break;
-      case 5:
-        // DeleteClue();
-        break;
-      case 6:
-        // ViewWords();
-        break;
-      case 7:
-        // ViewClues();
-        break;
-      case 8:
-        // ExportDataToFile();
-        break;
-      case 9:
-        // ImportDataFromFile();
-        break;
-      default:
-        break;
+    case 0:
+      exitFlagToMainMenu = 1;
+      break;
+    case 1:
+      // AddWord();
+      break;
+    case 2:
+      // AddTrivia();
+      break;
+    case 3:
+      // ModifyEntry();
+      break;
+    case 4:
+      // DeleteWord();
+      break;
+    case 5:
+      // DeleteClue();
+      break;
+    case 6:
+      // ViewWords();
+      break;
+    case 7:
+      // ViewClues();
+      break;
+    case 8:
+      // ExportDataToFile();
+      break;
+    case 9:
+      // ImportDataFromFile();
+      break;
+    default:
+      break;
     }
   }
 }
 
-int main() 
-{
+int main() {
   int input, exitFlag = 0;
   while (!exitFlag) {
     printf("\nWelcome to the Word Trivia!\n");
@@ -166,24 +227,25 @@ int main()
     printf("\nEnter your choice: ");
     scanf("%d", &input);
     switch (input) {
-      case 0:
-        exitFlag = 1;
-        break;
-      case 1:
-        // if empty words, then ask to go to admin phase
-        // if (kj) {
-        //
-        // }
-        break;
-      case 2:
-        AdminMenu();
-        break;
-      default:
-        // handle character input?
-        // if (expression) {
-        // }
-        printf("Invalid input. Please try again.\n");
-        break;
+    case 0:
+      exitFlag = 1;
+      break;
+    case 1:
+      // if empty words, then ask to go to admin phase
+      // if (kj) {
+      //
+      // }
+      gamePhase();
+      break;
+    case 2:
+      AdminMenu();
+      break;
+    default:
+      // handle character input?
+      // if (expression) {
+      // }
+      printf("Invalid input. Please try again.\n");
+      break;
     }
   }
   return 0;
