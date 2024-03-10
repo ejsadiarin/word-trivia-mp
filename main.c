@@ -28,6 +28,8 @@ typedef struct {
   TriviaType trivia[10];
 } WordType;
 
+typedef WordType Entries[150];
+
 // // TODO: the char array to be displayed
 // struct Board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
 // typedef struct {
@@ -91,13 +93,10 @@ void createBoard(char board[][MAX_BOARD_SIZE], int *row, int *col) {
       board[i][j] = uniqueLetter;
       printf("%c ", board[i][j]);
     }
-    // printf("%s", board[i]);
     printf("\n");
   }
 
   // make sure to have enough entries in database for the grid board
-
-  // have displayBoard() in the end
 }
 
 // at most 10 trivia per word (so word struct?)
@@ -156,6 +155,13 @@ void gamePhase() {
   createBoard(board, &row, &col);
 
   /******PLAYING PHASE*******/
+  // TODO: select letter from board, then ask question (calls questionPhase())
+  // --> questionPhase() has Q&A:
+  // --> - then Search() if input char is in the current row in the board
+  // --> - if yes, then proceed with the question (call database for word)
+  // --> if answered correctly, replace the letter with '*', otherwise '-' (calls replaceLetter())
+  //
+  // TODO: check every row with checkRowStatus()
 
   /******CHECK GAME STATUS IF WIN OR LOSE*******/
   isWin(board, row, col);
