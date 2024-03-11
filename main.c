@@ -53,6 +53,27 @@ char generateUniqueRandomLetter(char usedLetters[], int size) {
   return letter;
 }
 
+// TODO: call in createBoard()
+// int findMultiples(int entries) {
+//   int i, j;
+//   for (i = 1; i <= entries; i++) {
+//     for (j = i; j <= num; j++) {
+//       if (i * j == num) {
+//       }
+//     }
+//   }
+// }
+
+/*
+ * Returns the index of the key, otherwise -1
+ *
+ * NOTE: (1) to be called when selecting letter from board, (2) searching if word (entry) exists in "database"
+ * */
+int Search() {
+  return -1;
+}
+
+
 /*
  * Populates the board based on the entries in the file.
  * --> asks for dimension of the board
@@ -67,23 +88,6 @@ void createBoard(char board[][MAX_BOARD_SIZE], int *row, int *col) {
   char usedLetters[MAX_BOARD_SIZE];
   char uniqueLetter;
 
-  // printf("\nEnter row of the board (min is 3, max is 10): ");
-  // scanf("%d", row);
-  // printf("\nEnter col of the board (min is 3, max is 10): ");
-  // scanf("%d", col);
-  //
-  // // check if row and col are within the range (input validation)
-  // while (*row < MIN_BOARD_SIZE || *row > MAX_BOARD_SIZE ||
-  //        *col < MIN_BOARD_SIZE || *col > MAX_BOARD_SIZE) {
-  //   printf("Invalid board size. Please try again.\n");
-  //   printf("\nEnter row of the board (min is 3, max is 10): ");
-  //   scanf("%d", row);
-  //   printf("\nEnter col of the board (min is 3, max is 10): ");
-  //   scanf("%d", col);
-  // }
-
-  // ask for filename
-
   // generate random letters for the board
   for (i = 0; i < *row; i++) {
     for (j = 0; j < *col; j++) {
@@ -96,8 +100,9 @@ void createBoard(char board[][MAX_BOARD_SIZE], int *row, int *col) {
     printf("\n");
   }
 
-  // make sure to have enough entries in database for the grid board
 }
+
+
 
 // at most 10 trivia per word (so word struct?)
 // there can be at most 150 entries/words (answers in the game), but a word can
@@ -145,13 +150,34 @@ int checkRowStatus(char rowElems[], int *row) {
 
 void gamePhase() {
   int i = 0, j = 0; 
-  // for testing
+  // NOTE: for testing
   int row = 10;
   int col = 10;
   // TODO: size of the board depends on the number of word entries in the "database"
   char board[row][col];
 
   /******INITIALIZE*******/
+
+  // ask for filename
+  // make sure to have enough entries in database for the grid board
+
+  // NOTE: uncomment if not testing
+  // printf("\nEnter row of the board (min is 3, max is 10): ");
+  // scanf("%d", row);
+  // printf("\nEnter col of the board (min is 3, max is 10): ");
+  // scanf("%d", col);
+  // check if row and col are within the range (input validation)
+  while (row < MIN_BOARD_SIZE || row > MAX_BOARD_SIZE || col < MIN_BOARD_SIZE || col > MAX_BOARD_SIZE) {
+    printf("Invalid board size. Please try again.\n");
+    printf("\nEnter row of the board (min is 3, max is 10): ");
+    scanf("%d", &row);
+    printf("\nEnter col of the board (min is 3, max is 10): ");
+    scanf("%d", &col);
+  }
+  // TODO: make sure to have enough entries in database for the grid board
+  // if (validEntriesFlag) {
+  //   createBoard(board, &row, &col);
+  // }
   createBoard(board, &row, &col);
 
   /******PLAYING PHASE*******/
