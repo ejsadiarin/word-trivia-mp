@@ -102,6 +102,15 @@ void createBoard(char board[][MAX_BOARD_SIZE], int *row, int *col) {
 
 }
 
+/*
+ * --> ask for input letter
+ * --> call Search() to check if the letter exists in the current row in the board
+ * --> if exists, then proceed with the question (call database for word)
+ * */
+void questionPhase() {
+  printf("");
+}
+
 
 
 // at most 10 trivia per word (so word struct?)
@@ -136,12 +145,13 @@ int isWin(char board[][MAX_BOARD_SIZE], int row, int col) {
 // Determine if the game is over based on the contents in the 2D array of
 // characters. calls checkWinningConditions()
 // TODO: to be called every after question answered
-int checkRowStatus(char rowElems[], int *row) {
+int checkRowStatus(char rowElems[], int *col) {
   // check if col == numOfWrong (which is '-');
   int i, canProceed = 0;
-  for (i = 0; i < *row; i++) {
+  for (i = 0; i < *col; i++) {
     if (rowElems[i] == '*') {
       canProceed = 1;
+      return canProceed;
     }
   }
 
