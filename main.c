@@ -30,13 +30,6 @@ typedef struct {
 
 typedef WordType Entries[150];
 
-// // TODO: the char array to be displayed
-// struct Board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
-// typedef struct {
-//   Word20 wordName;
-//   TriviaType trivia[10];
-// } BoardInterface;
-
 // typedef WordType Board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
 
 char generateUniqueRandomLetter(char usedLetters[], int size) {
@@ -102,6 +95,9 @@ void createBoard(char board[][MAX_BOARD_SIZE], int *row, int *col) {
 
 }
 
+int getMaxBoardSize(int numEntries) {
+}
+
 /*
  * --> ask for input letter
  * --> call Search() to check if the letter exists in the current row in the board
@@ -160,16 +156,34 @@ int checkRowStatus(char rowElems[], int *col) {
 
 void gamePhase() {
   int i = 0, j = 0; 
+  int numEntries = 0;
   // NOTE: for testing
   int row = 10;
   int col = 10;
-  // TODO: size of the board depends on the number of word entries in the "database"
-  char board[row][col];
+  int validNumEntriesFlag = 0;
+
 
   /******INITIALIZE*******/
+  // ask user for dimensions of the board (ask for filename) - initial file
+  // fscanf the Entries filename database
+  // then store it in the Entries struct array (should be of type WordType) - does the imported file have trivia already included?
+  // then count the number of Entries in the given file
 
-  // ask for filename
-  // make sure to have enough entries in database for the grid board
+  // --> make sure to have enough entries in database for the grid board
+  // - should be max: 150
+  while (!validNumEntriesFlag) {
+    if (numEntries > 150 || numEntries < 1) {
+      printf("Invalid number of entries. Please try again.\n");
+      // fscanf the Entries filename database
+    } else {
+      validNumEntriesFlag = 1;
+    
+    }
+  }
+  // --> based on the number of entries in the file, populate the board with appropriate size
+  // TODO: size of the board depends on the number of word entries in the "database" (Entries struct array)
+  char board[row][col];
+
 
   // NOTE: uncomment if not testing
   // printf("\nEnter row of the board (min is 3, max is 10): ");
