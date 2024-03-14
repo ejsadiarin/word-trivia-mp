@@ -15,20 +15,20 @@
 #define MAX_BOARD_SIZE 10
 #define MIN_BOARD_SIZE 3
 
-typedef char Word20[21]; // data type of the answers
-typedef char Relation30[31];
+typedef char String20[21]; // data type of the answers
+typedef char String30[31];
 
 typedef struct {
-  Relation30 relation;
-  Relation30 relationValue;
+  String30 relation;
+  String30 relationValue;
 } TriviaType;
 
 typedef struct {
-  Word20 wordName;
+  String20 wordName;
   TriviaType trivia[10];
 } WordType;
 
-typedef WordType Entries[150];
+typedef WordType Words[150];
 
 // typedef WordType Board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
 
@@ -47,9 +47,9 @@ char generateUniqueRandomLetter(char usedLetters[], int size) {
 }
 
 // TODO: call in createBoard()
-// int findMultiples(int entries) {
+// int findMultiples(int Words) {
 //   int i, j;
-//   for (i = 1; i <= entries; i++) {
+//   for (i = 1; i <= Words; i++) {
 //     for (j = i; j <= num; j++) {
 //       if (i * j == num) {
 //       }
@@ -68,11 +68,11 @@ int Search() {
 
 
 /*
- * Populates the board based on the entries in the file.
+ * Populates the board based on the Words in the file.
  * --> asks for dimension of the board
  * --> asks user for filename (loading text file of words and trivia)
  * --> generate random latters but unique for each row
- * --> make sure to have enough entries in database for the grid board
+ * --> make sure to have enough Words in database for the grid board
  * */
 void createBoard(char board[][MAX_BOARD_SIZE], int *row, int *col) {
   char filename[50];
@@ -95,22 +95,35 @@ void createBoard(char board[][MAX_BOARD_SIZE], int *row, int *col) {
 
 }
 
-int getMaxBoardSize(int numEntries) {
+int getMaxBoardSize(int numWords) {
 }
 
 /*
  * --> ask for input letter
  * --> call Search() to check if the letter exists in the current row in the board
  * --> if exists, then proceed with the question (call database for word)
+* --> NOTE: this is to be called for each letter in the board
  * */
-void questionPhase() {
-  printf("");
+void questionPhase(char board[][MAX_BOARD_SIZE], int numOfLettersInRow) {
+  int i, j;
+  String20 uniqueWordTracker[150];
+  char input;
+  for (i = 0; i < numOfLettersInRow; i++) {
+    for (j = 0; j < numOfLettersInRow; j++) {
+      printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i, i);
+      scanf("%c", &input);
+      // TODO: call Search() to check if the letter exists in the current row in the board
+      // access letter using: board[i][j]
+    }
+    // TODO: generateUniqueQuestion() - if letter exists in the current row in the board
+    // --> ensure word/answer is unique (not yet used in the game/grid) - push to uniqueWordTracker array
+  }
 }
 
 
 
 // at most 10 trivia per word (so word struct?)
-// there can be at most 150 entries/words (answers in the game), but a word can
+// there can be at most 150 Words/words (answers in the game), but a word can
 // have at most 10 trivia/clues
 
 // Determine if the player wins based on contents in the 2D array of characters
@@ -156,36 +169,34 @@ int checkRowStatus(char rowElems[], int *col) {
 
 void gamePhase() {
   int i = 0, j = 0; 
-  int numEntries = 0;
+  int numWords = 0;
   // NOTE: for testing
   int row = 10;
   int col = 10;
-  int validNumEntriesFlag = 0;
+  String30 filename;
 
 
   /******INITIALIZE*******/
   // ask user for dimensions of the board (ask for filename) - initial file
-  // fscanf the Entries filename database
-  // then store it in the Entries struct array (should be of type WordType) - does the imported file have trivia already included?
-  // then count the number of Entries in the given file
+  printf("Enter filename of your words: ");
+  scanf("%s", filename);
+  // fscanf the Words filename database (text file)
+  // then store it in the Words struct array (should be of type WordType) - does the imported file have trivia already included?
+  // then count the number of Words in the given file
 
-  // --> make sure to have enough entries in database for the grid board
+  // --> make sure to have enough Words in database for the grid board
   // - should be max: 150
-  while (!validNumEntriesFlag) {
-    if (numEntries > 150 || numEntries < 1) {
-      printf("Invalid number of entries. Please try again.\n");
-      // fscanf the Entries filename database
-    } else {
-      validNumEntriesFlag = 1;
-    
-    }
+  while (numWords > 150 || numWords < 1) {
+      printf("Invalid number of Words. Please try again.\n");
+      gamePhase();
   }
-  // --> based on the number of entries in the file, populate the board with appropriate size
-  // TODO: size of the board depends on the number of word entries in the "database" (Entries struct array)
+
+  // --> based on the number of Words in the file, populate the board with appropriate size
+  // TODO: size of the board depends on the number of word Words in the "database" (Words struct array)
   char board[row][col];
 
 
-  // NOTE: uncomment if not testing
+  // NOTE: uncomment if not testing (UPDATE: idk)
   // printf("\nEnter row of the board (min is 3, max is 10): ");
   // scanf("%d", row);
   // printf("\nEnter col of the board (min is 3, max is 10): ");
@@ -198,8 +209,8 @@ void gamePhase() {
     printf("\nEnter col of the board (min is 3, max is 10): ");
     scanf("%d", &col);
   }
-  // TODO: make sure to have enough entries in database for the grid board
-  // if (validEntriesFlag) {
+  // TODO: make sure to have enough Words in database for the grid board
+  // if (validWordsFlag) {
   //   createBoard(board, &row, &col);
   // }
   createBoard(board, &row, &col);
@@ -210,7 +221,7 @@ void gamePhase() {
   // --> - then Search() if input char is in the current row in the board
   // --> - if yes, then proceed with the question (call database for word)
   // --> if answered correctly, replace the letter with '*', otherwise '-' (calls replaceLetter())
-  //
+  questionPhase(board, col);
   // TODO: check every row with checkRowStatus()
 
   /******CHECK GAME STATUS IF WIN OR LOSE*******/
