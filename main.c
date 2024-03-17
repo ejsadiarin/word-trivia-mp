@@ -14,6 +14,8 @@
 
 #define MAX_BOARD_SIZE 10
 #define MIN_BOARD_SIZE 3
+#define MAX_WORDS 150
+#define MIN_WORDS 9 // 9 to create the minimum 3x3 board
 
 typedef char String20[21]; // data type of the answers
 typedef char String30[31];
@@ -28,9 +30,29 @@ typedef struct {
   TriviaType trivia[10];
 } WordType;
 
-typedef WordType Words[150];
+typedef WordType Words[150]; // this is the "database"
 
-// typedef WordType Board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
+typedef struct {
+  int row;
+  int col;
+  char board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
+} BoardType;
+
+int isUnique(Words words) {
+  int i, j, uniqueFlag, count;
+
+  count = 0; // have countWords in the Words struct array
+  uniqueFlag = 1; // assume all words are unique
+
+  for (i = 0; i < count; i++) {
+    for (j = i + 1; j < count; j++) {
+      if (strcmp(words[i].wordName, words[j].wordName) == 0) {
+        uniqueFlag = 0;
+      }
+    }
+  }
+  return uniqueFlag;
+}
 
 char generateUniqueRandomLetter(char usedLetters[], int size) {
   int i;
@@ -62,7 +84,13 @@ char generateUniqueRandomLetter(char usedLetters[], int size) {
  *
  * NOTE: (1) to be called when selecting letter from board, (2) searching if word (entry) exists in "database"
  * */
-int Search() {
+int Search(char array[], int size, char key) {
+  int i;
+  for (i = 0; i < size; i++) {
+    if (array[i] == key) {
+      return i;
+    }
+  }
   return -1;
 }
 
@@ -104,19 +132,17 @@ int getMaxBoardSize(int numWords) {
  * --> if exists, then proceed with the question (call database for word)
 * --> NOTE: this is to be called for each letter in the board
  * */
-void questionPhase(char board[][MAX_BOARD_SIZE], int numOfLettersInRow) {
-  int i, j;
-  String20 uniqueWordTracker[150];
+void rowQuestionPhase(char letters[], int numOfLettersInRow, char letterTracker[]) {
+  int i;
   char input;
   for (i = 0; i < numOfLettersInRow; i++) {
-    for (j = 0; j < numOfLettersInRow; j++) {
-      printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i, i);
-      scanf("%c", &input);
-      // TODO: call Search() to check if the letter exists in the current row in the board
-      // access letter using: board[i][j]
+    printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i, i);
+    scanf("%c", &input);
+    if (letters[i] == input && letters[i] != letterTracker[i] && input != '*' && input != '-') {
+      // proceed with the question (call database for word)
+      // TODO: generateUniqueQuestion() - if word exists in the board (current game phase)
+      letterTracker[i] = letters[i];
     }
-    // TODO: generateUniqueQuestion() - if letter exists in the current row in the board
-    // --> ensure word/answer is unique (not yet used in the game/grid) - push to uniqueWordTracker array
   }
 }
 
@@ -169,38 +195,51 @@ int checkRowStatus(char rowElems[], int *col) {
 
 void gamePhase() {
   int i = 0, j = 0; 
-  int numWords = 0;
   // NOTE: for testing
-  int row = 10;
-  int col = 10;
+  int numWords = 12;
+  // int row = 10;
+  // int col = 10;
+  int row;
+  int col;
   String30 filename;
-
+  FILE *initialFile;
+  char letterTracker[MAX_BOARD_SIZE]; // unique letter tracker (stores all "used" letters in the row)
+  String20 uniqueWordTracker[150]; // store Words->wordName here
+  Words wordsDatabase; // main database that admins can manipulate
 
   /******INITIALIZE*******/
-  // ask user for dimensions of the board (ask for filename) - initial file
-  printf("Enter filename of your words: ");
+  //  (ask for filename) - initial file
+  printf("Enter filename of your words (should end with .txt): ");
   scanf("%s", filename);
-  // fscanf the Words filename database (text file)
-  // then store it in the Words struct array (should be of type WordType) - does the imported file have trivia already included?
-  // then count the number of Words in the given file
+  printf("\n");
+  initialFile = fopen(filename, "r");
+  if (initialFile == NULL) {
+    printf("File not found. Please try again.\n");
+    gamePhase();
+  }
+  // FIX: then store it in the Words struct array (should be of type WordType) - does the imported file have trivia already included?
+  // --> change condition to numWords < MAX_WORDS if using numWords++ inside while loop
+  while (i < MAX_WORDS && fscanf(initialFile, "%s", wordsDatabase[i].wordName) != EOF) {
+    i++;
+  // numWords++; // make sure that numWords = 0 at the start
+  }
+  numWords = i; // remove this if using numWords++ inside while loop
 
   // --> make sure to have enough Words in database for the grid board
   // - should be max: 150
-  while (numWords > 150 || numWords < 1) {
-      printf("Invalid number of Words. Please try again.\n");
-      gamePhase();
+  while (numWords > MAX_WORDS || numWords < MIN_WORDS) {
+    printf("Invalid number of Words (MAX: 150, MIN: 1). Please try again.\n");
+    // recursion - ask for filename again
+    gamePhase();
   }
 
-  // --> based on the number of Words in the file, populate the board with appropriate size
-  // TODO: size of the board depends on the number of word Words in the "database" (Words struct array)
-  char board[row][col];
 
-
-  // NOTE: uncomment if not testing (UPDATE: idk)
-  // printf("\nEnter row of the board (min is 3, max is 10): ");
-  // scanf("%d", row);
-  // printf("\nEnter col of the board (min is 3, max is 10): ");
-  // scanf("%d", col);
+  // ask user for dimensions of the board
+  // NOTE: uncomment if not testing
+  printf("\nEnter row of the board (min is 3, max is 10): ");
+  scanf("%d", &row);
+  printf("\nEnter col of the board (min is 3, max is 10): ");
+  scanf("%d", &col);
   // check if row and col are within the range (input validation)
   while (row < MIN_BOARD_SIZE || row > MAX_BOARD_SIZE || col < MIN_BOARD_SIZE || col > MAX_BOARD_SIZE) {
     printf("Invalid board size. Please try again.\n");
@@ -209,19 +248,24 @@ void gamePhase() {
     printf("\nEnter col of the board (min is 3, max is 10): ");
     scanf("%d", &col);
   }
+
+  char board[row][col];
+
   // TODO: make sure to have enough Words in database for the grid board
-  // if (validWordsFlag) {
-  //   createBoard(board, &row, &col);
-  // }
-  createBoard(board, &row, &col);
+  if (isUnique(words)) {
+    createBoard(board, &row, &col);
+  }
 
   /******PLAYING PHASE*******/
   // TODO: select letter from board, then ask question (calls questionPhase())
-  // --> questionPhase() has Q&A:
-  // --> - then Search() if input char is in the current row in the board
-  // --> - if yes, then proceed with the question (call database for word)
-  // --> if answered correctly, replace the letter with '*', otherwise '-' (calls replaceLetter())
-  questionPhase(board, col);
+
+  for (i = 0; i < row; i++) {
+    // --> ensure word/answer is unique (not yet used in the game/grid) - push to uniqueWordTracker array
+    // --> rowQuestionPhase() has Q&A:
+    // --> - then Search() if input char is in the current row in the board
+    // --> - if yes, then proceed with the question (call database for word)
+    // --> if answered correctly, replace the letter with '*', otherwise '-' (calls replaceLetter())
+  }
   // TODO: check every row with checkRowStatus()
 
   /******CHECK GAME STATUS IF WIN OR LOSE*******/
