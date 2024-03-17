@@ -82,7 +82,7 @@ char generateUniqueRandomLetter(char usedLetters[], int size) {
 /*
  * Returns the index of the key, otherwise -1
  *
- * NOTE: (1) to be called when selecting letter from board, (2) searching if word (entry) exists in "database"
+ * FIX: (1) to be called when selecting letter from board, (2) searching if word (entry) exists in "database"
  * */
 int Search(char array[], int size, char key) {
   int i;
@@ -136,12 +136,24 @@ void rowQuestionPhase(char letters[], int numOfLettersInRow, char letterTracker[
   int i;
   char input;
   for (i = 0; i < numOfLettersInRow; i++) {
-    printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i, i);
+    printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i + 1, i + 1);
     scanf("%c", &input);
+    // convert input to uppercase
+    if (input >= 'a' && input <= 'z') {
+      input = input - 32;
+    }
+
+    while (input == '*' || input == '-') {
+      printf("\nInvalid input. Please try again.\n");
+      rowQuestionPhase(letters, numOfLettersInRow, letterTracker);
+    }
+
     if (letters[i] == input && letters[i] != letterTracker[i] && input != '*' && input != '-') {
       // proceed with the question (call database for word)
       // TODO: generateUniqueQuestion() - if word exists in the board (current game phase)
       letterTracker[i] = letters[i];
+    } else {
+      printf("Input does not exist in the current row. Please try again.\n");
     }
   }
 }
@@ -196,7 +208,7 @@ int checkRowStatus(char rowElems[], int *col) {
 void gamePhase() {
   int i = 0, j = 0; 
   // NOTE: for testing
-  int numWords = 12;
+  int numWords = 0;
   // int row = 10;
   // int col = 10;
   int row;
@@ -204,29 +216,35 @@ void gamePhase() {
   String30 filename;
   FILE *initialFile;
   char letterTracker[MAX_BOARD_SIZE]; // unique letter tracker (stores all "used" letters in the row)
-  String20 uniqueWordTracker[150]; // store Words->wordName here
+  String20 wordTracker[150]; // store Words->wordName here
   Words wordsDatabase; // main database that admins can manipulate
+  // TODO: move wordsDatabase to main() and pass it as a parameter
+  // --> and the current count of words in the database (since admin can CRUD it)
 
   /******INITIALIZE*******/
   //  (ask for filename) - initial file
-  printf("Enter filename of your words (should end with .txt): ");
+  printf("\nEnter filename of your words (should end with .txt): ");
   scanf("%s", filename);
   printf("\n");
-  initialFile = fopen(filename, "r");
+  // NOTE: if trivias/clues are included in the file, then use scanf("%s %s", wordsDatabase[i].trivia[j].relation, wordsDatabase[i].trivia[j].relationValue)
+  // --> or can I include it inside like: fscanf(initialFile, "%s %s %s", word, trivia.relation, trivia.relationValue)?
+  initialFile = fopen(filename, "r"); // or "append"? since admin can have initial words already stored in wordsDatabase
   if (initialFile == NULL) {
     printf("File not found. Please try again.\n");
     gamePhase();
   }
+
+  // TODO: move this whole block to main:
   // FIX: then store it in the Words struct array (should be of type WordType) - does the imported file have trivia already included?
   // --> change condition to numWords < MAX_WORDS if using numWords++ inside while loop
-  while (i < MAX_WORDS && fscanf(initialFile, "%s", wordsDatabase[i].wordName) != EOF) {
-    i++;
-  // numWords++; // make sure that numWords = 0 at the start
+  // numWords = current count of words in the database
+  // if already has words in wordsDatabase, then fscanf starting from the current count of words in the database
+  while (numWords < MAX_WORDS && fscanf(initialFile, "%s", wordsDatabase[numWords].wordName) != EOF) {
+    numWords++; // make sure that numWords = 0 at the start
   }
-  numWords = i; // remove this if using numWords++ inside while loop
 
-  // --> make sure to have enough Words in database for the grid board
-  // - should be max: 150
+  // make sure to have enough Words in database for the grid board
+  // - should be max: 150 and min: 9 (to create the minimum 3x3 board)
   while (numWords > MAX_WORDS || numWords < MIN_WORDS) {
     printf("Invalid number of Words (MAX: 150, MIN: 1). Please try again.\n");
     // recursion - ask for filename again
@@ -251,19 +269,23 @@ void gamePhase() {
 
   char board[row][col];
 
-  // TODO: make sure to have enough Words in database for the grid board
-  if (isUnique(words)) {
+  if (isUnique(wordsDatabase)) {
     createBoard(board, &row, &col);
+  } else {
+    printf("Words in the database are not unique (have duplicates). Please try again.\n");
+    gamePhase();
   }
 
   /******PLAYING PHASE*******/
   // TODO: select letter from board, then ask question (calls questionPhase())
 
   for (i = 0; i < row; i++) {
-    // --> ensure word/answer is unique (not yet used in the game/grid) - push to uniqueWordTracker array
-    // --> rowQuestionPhase() has Q&A:
+    // --> loop the board rows
+    // --> rowQuestionPhase(board[i], col, letterTracker
+    // ) has Q&A:
     // --> - then Search() if input char is in the current row in the board
     // --> - if yes, then proceed with the question (call database for word)
+    // --> ensure word/answer is unique (not yet used in the game/grid) - push to wordTracker array
     // --> if answered correctly, replace the letter with '*', otherwise '-' (calls replaceLetter())
   }
   // TODO: check every row with checkRowStatus()
