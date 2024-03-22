@@ -1,0 +1,7 @@
+Object: Table
+Kind of: TestKind
+Color: Black
+Property: Yes
+Test: hehe
+
+

@@ -16,6 +16,7 @@
 #define MIN_BOARD_SIZE 3
 #define MAX_WORDS 150
 #define MIN_WORDS 9 // 9 to create the minimum 3x3 board
+#define MAX_TRIVIAS 10
 
 typedef char String20[21]; // data type of the answers
 typedef char String30[31];
@@ -27,10 +28,11 @@ typedef struct {
 
 typedef struct {
   String20 wordName;
-  TriviaType trivia[10];
+  TriviaType trivia[MAX_TRIVIAS];
+  int numOfTrivias;
 } WordType;
 
-typedef WordType Words[150]; // this is the "database"
+typedef WordType Words[MAX_WORDS]; // this is the "database"
 
 typedef struct {
   int row;
@@ -38,7 +40,7 @@ typedef struct {
   char board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
 } BoardType;
 
-int isUnique(Words words) {
+int isUnique(Words *wordsDatabase) {
   int i, j, uniqueFlag, count;
 
   count = 0; // have countWords in the Words struct array
@@ -46,7 +48,7 @@ int isUnique(Words words) {
 
   for (i = 0; i < count; i++) {
     for (j = i + 1; j < count; j++) {
-      if (strcmp(words[i].wordName, words[j].wordName) == 0) {
+      if (strcmp(wordsDatabase[i]->wordName, wordsDatabase[j]->wordName) == 0) {
         uniqueFlag = 0;
       }
     }
@@ -205,52 +207,57 @@ int checkRowStatus(char rowElems[], int *col) {
   return canProceed;
 }
 
-void gamePhase() {
+void GamePhase(Words *wordsDatabase, int *numWords) {
   int i = 0, j = 0; 
   // NOTE: for testing
-  int numWords = 0;
   // int row = 10;
   // int col = 10;
   int row;
   int col;
-  String30 filename;
-  FILE *initialFile;
+  String30 words_filename;
+  String30 trivias_filename;
+  FILE *init_wordFile;
+  FILE *init_triviaFile;
   char letterTracker[MAX_BOARD_SIZE]; // unique letter tracker (stores all "used" letters in the row)
-  String20 wordTracker[150]; // store Words->wordName here
-  Words wordsDatabase; // main database that admins can manipulate
-  // TODO: move wordsDatabase to main() and pass it as a parameter
-  // --> and the current count of words in the database (since admin can CRUD it)
+  String20 wordTracker[150]; // to be used in the game phase (to check if word has already been used in the game)
 
   /******INITIALIZE*******/
-  //  (ask for filename) - initial file
-  printf("\nEnter filename of your words (should end with .txt): ");
-  scanf("%s", filename);
-  printf("\n");
-  // NOTE: if trivias/clues are included in the file, then use scanf("%s %s", wordsDatabase[i].trivia[j].relation, wordsDatabase[i].trivia[j].relationValue)
-  // --> or can I include it inside like: fscanf(initialFile, "%s %s %s", word, trivia.relation, trivia.relationValue)?
-  initialFile = fopen(filename, "r"); // or "append"? since admin can have initial words already stored in wordsDatabase
-  if (initialFile == NULL) {
-    printf("File not found. Please try again.\n");
-    gamePhase();
-  }
+  // (ask for filename) - initial file
+  // printf("\nEnter filename of your words (should end with .txt): ");
+  // scanf("%s", words_filename);
+  // printf("\n");
+  // init_wordFile = fopen(words_filename, "r"); // or "append"? since admin can have initial words already stored in wordsDatabase
+  // if (init_wordFile == NULL) {
+  //   printf("Words File not found. Please try again.\n");
+  //   GamePhase(wordsDatabase, numWords);
+  // }
 
-  // TODO: move this whole block to main:
+  // is trivia file separated from the words file?
+  printf("\nEnter filename of your trivias (should end with .txt): ");
+  scanf("%s", trivias_filename);
+  printf("\n");
+  init_triviaFile = fopen(trivias_filename, "r"); // or "append"? since admin can have initial words already stored in wordsDatabase
+  if (init_triviaFile == NULL) {
+    printf("Trivias File not found. Please try again.\n");
+    GamePhase(wordsDatabase, numWords);
+  }
+  // TODO: do i need to check for the trivia count? how?
+
   // FIX: then store it in the Words struct array (should be of type WordType) - does the imported file have trivia already included?
   // --> change condition to numWords < MAX_WORDS if using numWords++ inside while loop
   // numWords = current count of words in the database
   // if already has words in wordsDatabase, then fscanf starting from the current count of words in the database
-  while (numWords < MAX_WORDS && fscanf(initialFile, "%s", wordsDatabase[numWords].wordName) != EOF) {
+  while (*numWords < MAX_WORDS && fscanf(init_wordFile, "%s", wordsDatabase[*numWords]->wordName) != EOF) {
     numWords++; // make sure that numWords = 0 at the start
   }
 
   // make sure to have enough Words in database for the grid board
   // - should be max: 150 and min: 9 (to create the minimum 3x3 board)
-  while (numWords > MAX_WORDS || numWords < MIN_WORDS) {
+  if (*numWords > MAX_WORDS || *numWords < MIN_WORDS) {
     printf("Invalid number of Words (MAX: 150, MIN: 1). Please try again.\n");
     // recursion - ask for filename again
-    gamePhase();
+    GamePhase(wordsDatabase, numWords);
   }
-
 
   // ask user for dimensions of the board
   // NOTE: uncomment if not testing
@@ -273,7 +280,7 @@ void gamePhase() {
     createBoard(board, &row, &col);
   } else {
     printf("Words in the database are not unique (have duplicates). Please try again.\n");
-    gamePhase();
+    GamePhase(wordsDatabase, numWords);
   }
 
   /******PLAYING PHASE*******/
@@ -294,9 +301,98 @@ void gamePhase() {
   isWin(board, row, col);
 }
 
+  /******ADMIN PHASE*******/
+
+/* 
+ * The data in the text file is assumed to be in the format indicated in Export.
+*/
+void 
+ImportDataFromFile(Words *wordsDatabase, int *numWords) 
+{
+  FILE *file;
+  char filename[50];
+  char line[100];
+  WordType temp_entry;
+  int i;
+  char input;
+
+  // (ask for filename) - initial file (FIX: add validation for end with .txt?)
+  printf("\nEnter filename of your words (should end with .txt): ");
+  scanf("%s", filename);
+  printf("\n");
+  if ((file = fopen(filename, "r")) != NULL) {
+    while (fgets(line, sizeof(line), file) != NULL) {
+      // remove trailing \n
+      line[strlen(line) - 1] = '\0';
+
+      // TODO:
+      // add/"append" imported data to the wordsDatabase
+      // if words already exist in wordsDatabase, then:
+      // --> ask if want existing data to be overwritten
+      //    - if yes, then overwrite word to the existing word in wordsDatabase.  
+      //    - if no, then retain word in wordsDatabase  
+      //    - if word from imported file is unique, then it will be added/"appended"
+
+      // identify word
+      if (strcmp(line, "Object: ") == 0) {
+        // extract word as temporary for validation
+        sscanf(line, "Object: %s", temp_entry.wordName);
+
+        // check if already exists in wordsDatabase
+        for (i = 0; i < *numWords; i++) {
+          // if exist then options...
+          if (strcmp(temp_entry.wordName, wordsDatabase[i]->wordName) == 0) {
+            printf("%s already exists in the database. Override? [y/n]", temp_entry.wordName);
+            scanf("%c", &input);
+            if (input == 'y' || input == 'Y') {
+              printf("Word successfully overwritten with new data.\n");
+              sscanf(line, "Object: %s", wordsDatabase[i]->wordName);
+            }
+            else if (input == 'n' || input == 'N') {
+              printf("current Word %s retained.\n", wordsDatabase[i]->wordName);
+            } 
+            else {
+              printf("Invalid input.\n");
+            } 
+          } 
+          else {
+            // append if unique word
+            sscanf(line, "Object: %s", wordsDatabase[*numWords]->wordName);
+            numWords++;
+          }
+        }
+      }
+      // identify relation and relation value
+      else {
+        // how to handle if relation has spaces like "Kind of: ValueHere", where "Kind of" is a relation and "Value" is a relationValue
+        // if unique, then just append on index *numWords:
+        sscanf(line, "%s %s", temp_entry.trivia->relation, temp_entry.trivia->relationValue);
+        strcpy(wordsDatabase[*numWords]->trivia[wordsDatabase[*numWords]->numOfTrivias].relation, temp_entry.trivia->relation); 
+        strcpy(wordsDatabase[*numWords]->trivia[wordsDatabase[*numWords]->numOfTrivias].relationValue, temp_entry.trivia->relationValue); 
+        wordsDatabase[*numWords]->numOfTrivias++;
+        // also handle when player decided to 'overwrite' the word 
+        // --> as seen above, when selected y, then 
+        // --> maybe check based on the state of the input variable? like if input == 'y' || input == 'Y' then idk...??
+      }
+
+    }
+
+
+    fclose(file);
+
+  } else printf("Error opening file while reading.\n");
+
+}
+
+void 
+ExportDataToFile() 
+{
+
+}
+
 // Menu for the Admin Phase
 // each word has at most 10 trivia (relations):
-void AdminMenu() {
+void AdminMenu(Words *wordsDatabase, int *numWords) {
   int input, exitFlagToMainMenu = 0;
   while (!exitFlagToMainMenu) {
     printf("\n--------------Admin Menu--------------\n");
@@ -352,6 +448,8 @@ void AdminMenu() {
 
 int main() {
   int input, exitFlag = 0;
+  int numWords = 0;
+  Words wordsDatabase; // main database that admins can manipulate
   while (!exitFlag) {
     printf("\nWelcome to the Word Trivia!\n");
     printf("[1] Game Phase (Play)\n");
@@ -364,14 +462,10 @@ int main() {
       exitFlag = 1;
       break;
     case 1:
-      // if empty words, then ask to go to admin phase
-      // if (kj) {
-      //
-      // }
-      gamePhase();
+      GamePhase(&wordsDatabase, &numWords);
       break;
     case 2:
-      AdminMenu();
+      AdminMenu(&wordsDatabase, &numWords); // have a temporary database for the admin phase then it will only be saved to the main database if it is "exported" (called Export() function)
       break;
     default:
       // handle character input?
