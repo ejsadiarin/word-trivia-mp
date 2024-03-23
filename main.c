@@ -320,10 +320,29 @@ void GamePhase(Words *wordsDatabase, int *numWords) {
   // e. Determine if word already exists in the array
   // f. Add Word
   // g. Add Clues
+void SortAlphabetical(Words *wordsDatabase, int *numWords) {
+  int i, j;
+  WordType temp;
+  for (i = 0; i < *numWords; i++) {
+    for (j = i + 1; j < *numWords; j++) {
+      if (strcmp(wordsDatabase[i]->wordName, wordsDatabase[j]->wordName) > 0) {
+        temp = *wordsDatabase[i];
+        *wordsDatabase[i] = *wordsDatabase[j];
+        *wordsDatabase[j] = temp;
+      }
+    }
+  }
+}
+
 void DisplayAllWords(Words *wordsDatabase, int *numWords) {
   int i;
+  SortAlphabetical(wordsDatabase, numWords);
   for (i = 0; i < *numWords; i++) {
     printf("%s\n", wordsDatabase[i]->wordName);
+    // printf("%s ", wordsDatabase[i]->wordName);
+    // if (i == 3) {
+    //   printf("\n");
+    // }
   }
 }
 
@@ -343,22 +362,40 @@ void DisplayAllWords(Words *wordsDatabase, int *numWords) {
  *
  * */
 void ViewClues(Words *wordsDatabase, int *numWords) {
-  int i, j;
+  int i, j, exitFlag = 0;
   char word[20];
 
+  printf("\n--------------------------------------------------------\n");
   DisplayAllWords(wordsDatabase, numWords);
 
-  printf("\nEnter word: ");
-  scanf("%s", word);
-  for (i = 0; i < *numWords; i++) {
-    if (strcmp(word, wordsDatabase[i]->wordName) == 0) {
-      printf("Object: %s\n", wordsDatabase[i]->wordName);
-      for (j = 0; j < wordsDatabase[i]->numOfClues; j++) {
-        printf("  %s: %s\n", wordsDatabase[i]->clues[j].relation,
-               wordsDatabase[i]->clues[j].relationValue);
+  do {
+    printf("\n[0] - Go back to the menu\n");
+    printf("\n[1] - Display all words again\n");
+    printf("Enter the word you want to view the clues on: ");
+    scanf("%s", word);
+    printf("\n");
+
+    if (strcmp(word, "0") == 0) {
+      exitFlag = 1;
+    }
+
+    if (strcmp(word, "1") == 0) {
+      DisplayAllWords(wordsDatabase, numWords);
+    }
+  
+    for (i = 0; i < *numWords; i++) {
+      if (strcmp(word, wordsDatabase[i]->wordName) == 0) {
+        printf("Object: %s\n", wordsDatabase[i]->wordName);
+        for (j = 0; j < wordsDatabase[i]->numOfClues; j++) {
+          printf("  %s: %s\n", wordsDatabase[i]->clues[j].relation, wordsDatabase[i]->clues[j].relationValue);
+        }
+      } else {
+        printf("Word: %s does not exist in the database.\n", word);
       }
     }
-  }
+
+  } while (exitFlag == 0);
+
 }
 
 /*
@@ -369,20 +406,68 @@ void ViewClues(Words *wordsDatabase, int *numWords) {
  * TODO: ViewWords()
 */
 void ViewWords(Words *wordsDatabase, int *numWords) {
-  int i, j;
+  int i = 0, j, exitFlag = 0;
   char input;
-  for (i = 0; i < *numWords; i++) {
-    printf("Object: %s\n", wordsDatabase[i]->wordName);
-    for (j = 0; j < wordsDatabase[i]->numOfClues; j++) {
-      printf("  %s: %s\n", wordsDatabase[i]->clues[j].relation,
-             wordsDatabase[i]->clues[j].relationValue);
+
+  SortAlphabetical(wordsDatabase, numWords);
+
+  do {
+    // show first word (alphabetical order)
+    while (i < *numWords) {
+      printf("Object: %s\n", wordsDatabase[i]->wordName);
+      for (j = 0; j < wordsDatabase[i]->numOfClues; j++) {
+        printf("  %s: %s\n", wordsDatabase[i]->clues[j].relation, wordsDatabase[i]->clues[j].relationValue);
+      }
+
+      // options:
+      printf("\n[N] - Next, [P] - Previous, [X] - Exit\n");
+      printf("Enter your choice: ");
+      scanf(" %c", &input);
+      printf("\n");
+
+      // convert input to uppercase
+      if (input >= 'a' && input <= 'z') {
+        input = input - 32;
+      }
+
+      // handle invalid input
+      while (input != 'N' && input != 'P' && input != 'X') {
+        printf("Invalid input. Please try again.\n");
+        printf("\n[N] - Next, [P] - Previous, [X] - Exit\n");
+        printf("Enter your choice: ");
+        scanf(" %c", &input);
+      }
+
+      // handle cases at start and end of the list
+      while (i == 0 && input == 'P') {
+        printf("\nNo previous word. Please try again.\n");
+        printf("\n[N] - Next, [X] - Exit\n");
+        printf("Enter your choice: ");
+        scanf(" %c", &input);
+      } 
+      while (i == *numWords - 1 && input == 'N') {
+        printf("\nNo next word. Please try again.\n");
+        printf("\n[P] - Previous, [X] - Exit\n");
+        printf("Enter your choice: ");
+        scanf(" %c", &input);
+      }
+        
+
+      if (input == 'N') {
+        // continue
+        i++;
+      } 
+      else if (input == 'P') {
+        // continue
+        i--;
+      } 
+      else if (input == 'X') {
+        // exit
+        exitFlag = 1;
+      }
     }
-    printf("Press 'N' for next, 'P' for previous, 'X' to end the display and go back to the menu: ");
-    scanf(" %c", &input);
-    if (input == 'X' || input == 'x') {
-      break;
-    }
-  }
+  } while (exitFlag == 0 || i < *numWords);
+
 }
 
 void AddWord(Words *wordsDatabase, int *numWords) {
