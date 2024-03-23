@@ -561,6 +561,67 @@ void AddClues(Words *wordsDatabase, int *numWords) {
 
 }
 
+void ModifyEntry(Words *wordsDatabase, int *numWords) {
+  int i, index;
+  String20 input;
+  printf("\nEnter word to modify: ");
+  scanf("%s", input);
+  // check if word exists in the database
+  index = SearchWord(wordsDatabase, numWords, input);
+  if (index < 0) {
+    printf("Word does not exist in the database.\n");
+    return;
+  }
+  printf("\nEnter new word: ");
+  scanf("%s", wordsDatabase[index]->wordName);
+  printf("Word successfully modified.\n");
+}
+
+void DeleteWord(Words *wordsDatabase, int *numWords) {
+  int i, index;
+  String20 input;
+  printf("\nEnter word to delete: ");
+  scanf("%s", input);
+  // check if word exists in the database
+  index = SearchWord(wordsDatabase, numWords, input);
+  if (index < 0) {
+    printf("Word does not exist in the database.\n");
+    return;
+  }
+  for (i = index; i < *numWords - 1; i++) {
+    *wordsDatabase[i] = *wordsDatabase[i + 1];
+  }
+  (*numWords)--;
+  printf("Word successfully deleted.\n");
+}
+
+void DeleteClue(Words *wordsDatabase, int *numWords) {
+  int i, j, index, indexClue;
+  String20 input;
+  String30 relation;
+  printf("\nEnter word to delete clue from: ");
+  scanf("%s", input);
+  // check if word exists in the database
+  index = SearchWord(wordsDatabase, numWords, input);
+  if (index < 0) {
+    printf("Word does not exist in the database.\n");
+    return;
+  }
+  printf("\nEnter relation to delete: ");
+  scanf("%30s", relation);
+  for (i = 0; i < wordsDatabase[index]->numOfClues; i++) {
+    if (strcmp(relation, wordsDatabase[index]->clues[i].relation) == 0) {
+      for (j = i; j < wordsDatabase[index]->numOfClues - 1; j++) {
+        wordsDatabase[index]->clues[j] = wordsDatabase[index]->clues[j + 1];
+      }
+      wordsDatabase[index]->numOfClues--;
+      printf("Clue successfully deleted.\n");
+      return;
+    }
+  }
+  printf("Clue does not exist in the database.\n");
+}
+
 /*
  * TODO:
  * The data in the text file is assumed to be in the format indicated in Export.
