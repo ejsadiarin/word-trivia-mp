@@ -4,4 +4,8 @@ Color: Black
 Property: Yes
 Test: hehe
 
-
+Object: Chair
+Prop1: hehe
+Type: oww
+WOW: ofc
+Model: ddr777
