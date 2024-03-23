@@ -347,6 +347,20 @@ void DisplayAllWords(Words *wordsDatabase, int *numWords) {
 }
 
 /*
+ *
+ * Returns the index of the word in the database, otherwise -1
+ * */
+int SearchWord(Words *wordsDatabase, int *numWords, char key[]) {
+  int i;
+  for (i = 0; i < *numWords; i++) {
+    if (strcmp(key, wordsDatabase[i]->wordName) == 0) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+/*
  * TODO: ViewClues()
  * Show a listing of all words before asking your user to type the word whose clues he wants to view.
  * The list of relations and relation values of the chosen word should be shown. Make sure
@@ -362,7 +376,7 @@ void DisplayAllWords(Words *wordsDatabase, int *numWords) {
  *
  * */
 void ViewClues(Words *wordsDatabase, int *numWords) {
-  int i, j, exitFlag = 0;
+  int i, j, index, exitFlag = 0;
   char word[20];
 
   printf("\n--------------------------------------------------------\n");
@@ -383,16 +397,27 @@ void ViewClues(Words *wordsDatabase, int *numWords) {
       DisplayAllWords(wordsDatabase, numWords);
     }
   
-    for (i = 0; i < *numWords; i++) {
-      if (strcmp(word, wordsDatabase[i]->wordName) == 0) {
-        printf("Object: %s\n", wordsDatabase[i]->wordName);
-        for (j = 0; j < wordsDatabase[i]->numOfClues; j++) {
-          printf("  %s: %s\n", wordsDatabase[i]->clues[j].relation, wordsDatabase[i]->clues[j].relationValue);
-        }
-      } else {
-        printf("Word: %s does not exist in the database.\n", word);
+    index = SearchWord(wordsDatabase, numWords, word);
+    if (index >= 0) {
+      printf("Object: %s\n", wordsDatabase[index]->wordName);
+      for (j = 0; j < wordsDatabase[index]->numOfClues; j++) {
+        printf("  %s: %s\n", wordsDatabase[index]->clues[j].relation, wordsDatabase[index]->clues[j].relationValue);
       }
+    } 
+    else {
+      printf("Word: %s does not exist in the database.\n", word);
     }
+
+    // for (i = 0; i < *numWords; i++) {
+    //   if (strcmp(word, wordsDatabase[i]->wordName) == 0) {
+    //     printf("Object: %s\n", wordsDatabase[i]->wordName);
+    //     for (j = 0; j < wordsDatabase[i]->numOfClues; j++) {
+    //       printf("  %s: %s\n", wordsDatabase[i]->clues[j].relation, wordsDatabase[i]->clues[j].relationValue);
+    //     }
+    //   } else {
+    //     printf("Word: %s does not exist in the database.\n", word);
+    //   }
+    // }
 
   } while (exitFlag == 0);
 
@@ -471,19 +496,73 @@ void ViewWords(Words *wordsDatabase, int *numWords) {
 }
 
 void AddWord(Words *wordsDatabase, int *numWords) {
-  char input;
+  String20 input;
+
   // check if there is still space in the database
   if (*numWords == MAX_WORDS) {
     printf("Database is full. Cannot add more words.\n");
     return;
   }
 
-  printf("Enter word: ");
-  scanf("%s", wordsDatabase[*numWords]->wordName);
+  printf("\nEnter word to add: ");
+  scanf("%s", input);
+
+  // check if word already exists in the database
+  if (SearchWord(wordsDatabase, numWords, input) > 0) {
+    printf("\nWord already exists in the database.\n");
+    return;
+  }
+
+  strcpy(wordsDatabase[*numWords]->wordName, input);
   (*numWords)++;
 }
 
+void AddClues(Words *wordsDatabase, int *numWords) {
+  int i, j, index, willRepeat = 0;
+  char yn;
+  String20 input;
+  String30 relation;
+  String30 relationValue;
+
+  printf("\nEnter word to add clues to: ");
+  scanf("%s", input);
+
+  // check if word exists in the database
+  index = SearchWord(wordsDatabase, numWords, input);
+  if (index < 0) {
+    printf("Word does not exist in the database.\n");
+    return;
+  }
+
+  do {
+    // add clues to the word
+    printf("\nEnter relation: ");
+    scanf("%30s", relation);
+    printf("\nEnter relation value: ");
+    scanf("%30s", relationValue);
+    strcpy(wordsDatabase[index]->clues[wordsDatabase[index]->numOfClues].relation, relation);
+    strcpy(wordsDatabase[index]->clues[wordsDatabase[index]->numOfClues].relationValue, relationValue);
+    wordsDatabase[index]->numOfClues++;
+
+    printf("Added new clue to word %s!\n", input);
+
+    // ask if user wants to add more clues
+    printf("\nDo you want to add more clues? [y/n]: ");
+    scanf(" %c", &yn);
+    if (yn == 'y' || yn == 'Y') {
+      willRepeat = 1;
+    } else if (yn == 'n' || yn == 'N') {
+      willRepeat = 0;
+    } else {
+      printf("Invalid input. Exiting...\n");
+      willRepeat = 0;
+    }
+  } while (willRepeat == 1);
+
+}
+
 /*
+ * TODO:
  * The data in the text file is assumed to be in the format indicated in Export.
  */
 void ImportDataFromFile(Words *wordsDatabase, int *numWords) {
