@@ -584,7 +584,7 @@ void AddCluesUI(Words *wordsDatabase, int *numWords) {
 }
 
 void ModifyEntry(Words *wordsDatabase, int *numWords) {
-  int i, j, origIndex, tempIndex, choice;
+  int i, origIndex, tempIndex, choice;
   String20 input, newWord;
 
   if (*numWords == 0) {
@@ -607,13 +607,9 @@ void ModifyEntry(Words *wordsDatabase, int *numWords) {
   // TODO: ask user if they want to modify the word or the clues
   while (choice != 0) {
     // show selected entry to be modified:
-    for (i = 0; i < *numWords; i++) {
-      if (strcmp(input, wordsDatabase[i]->wordName) == 0) {
-        printf("Object: %s\n", wordsDatabase[i]->wordName);
-        for (j = 0; j < wordsDatabase[i]->numOfClues; j++) {
-          printf("  %s: %s\n", wordsDatabase[i]->clues[j].relation, wordsDatabase[i]->clues[j].relationValue);
-        }
-      }
+    printf("Object: %s\n", wordsDatabase[origIndex]->wordName);
+    for (i = 0; i < wordsDatabase[origIndex]->numOfClues; i++) {
+      printf("  %s: %s\n", wordsDatabase[origIndex]->clues[i].relation, wordsDatabase[origIndex]->clues[i].relationValue);
     }
 
     printf("[1] - Modify the Word, [2] - Modify a Clue, [0] - Go back to Admin Menu.\n");
