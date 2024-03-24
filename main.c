@@ -11,34 +11,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
-#define MAX_BOARD_SIZE 10
-#define MIN_BOARD_SIZE 3
-#define MAX_WORDS 150
-#define MIN_WORDS 9 // 9 to create the minimum 3x3 board
-#define MAX_CLUES 10
-
-typedef char String20[21]; // data type of the answers
-typedef char String30[31];
-
-typedef struct {
-  String30 relation;
-  String30 relationValue;
-} CluesType;
-
-typedef struct {
-  String20 wordName;
-  CluesType clues[MAX_CLUES];
-  int numOfClues;
-} WordType;
-
-typedef WordType Words[MAX_WORDS]; // this is the "database"
-
-typedef struct {
-  int row;
-  int col;
-  char board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
-} BoardType;
+#include "SADIARIN_wordTrivia.h"
 
 int isUnique(Words *wordsDatabase) {
   int i, j, uniqueFlag, count;
@@ -133,8 +106,7 @@ int getMaxBoardSize(int numWords) {}
  * --> if exists, then proceed with the question (call database for word)
  * --> NOTE: this is to be called for each letter in the board
  * */
-void rowQuestionPhase(char letters[], int numOfLettersInRow,
-                      char letterTracker[]) {
+void rowQuestionPhase(char letters[], int numOfLettersInRow, char letterTracker[]) {
   int i;
   char input;
   for (i = 0; i < numOfLettersInRow; i++) {
@@ -336,6 +308,13 @@ void SortAlphabetical(Words *wordsDatabase, int *numWords) {
 
 void DisplayAllWords(Words *wordsDatabase, int *numWords) {
   int i;
+
+  // handle case where there is no words
+  if (*numWords == 0) {
+    printf("No words in the database. Please add words first.\n");
+    return;
+  }
+
   SortAlphabetical(wordsDatabase, numWords);
   for (i = 0; i < *numWords; i++) {
     printf("%s\n", wordsDatabase[i]->wordName);
@@ -373,28 +352,29 @@ int SearchWord(Words *wordsDatabase, int *numWords, char key[]) {
  *       Make: Wood, Plastic
  *       Color: Brown, White, Black
  *
- *
  * */
 void ViewClues(Words *wordsDatabase, int *numWords) {
   int i, j, index, exitFlag = 0;
   char word[20];
 
-  printf("\n--------------------------------------------------------\n");
+  // printf("\n--------------------------------------------------------\n");
   DisplayAllWords(wordsDatabase, numWords);
+
+  if (*numWords == 0) {
+    printf("\nNo words in the database. Please add words first.\n");
+    return;
+  }
 
   do {
     printf("\n[0] - Go back to the menu\n");
-    printf("\n[1] - Display all words again\n");
+    printf("[1] - Display all words again\n");
     printf("Enter the word you want to view the clues on: ");
     scanf("%s", word);
     printf("\n");
 
     if (strcmp(word, "0") == 0) {
       exitFlag = 1;
-    }
-
-    if (strcmp(word, "1") == 0) {
-      DisplayAllWords(wordsDatabase, numWords);
+      return;
     }
   
     index = SearchWord(wordsDatabase, numWords, word);
@@ -403,7 +383,10 @@ void ViewClues(Words *wordsDatabase, int *numWords) {
       for (j = 0; j < wordsDatabase[index]->numOfClues; j++) {
         printf("  %s: %s\n", wordsDatabase[index]->clues[j].relation, wordsDatabase[index]->clues[j].relationValue);
       }
-    } 
+    }
+    else if (strcmp(word, "1") == 0) {
+      DisplayAllWords(wordsDatabase, numWords);
+    }
     else {
       printf("Word: %s does not exist in the database.\n", word);
     }
@@ -428,71 +411,66 @@ void ViewClues(Words *wordsDatabase, int *numWords) {
     shown. Display each word one at a time until all entries have been displayed. Provide a way for
     the user to view the next or previous word or exit the view (i.e., press ‘N’ for next, ‘P’ for previous,
     ‘X’ to end the display and go back to the menu).
- * TODO: ViewWords()
 */
 void ViewWords(Words *wordsDatabase, int *numWords) {
-  int i = 0, j, exitFlag = 0;
-  char input;
+  int i = 0, j, validInput = 0;
+  char input[2];
+
+  if (*numWords == 0) {
+    printf("\nNo words in the database. Please add words first.\n");
+    return;
+  }
 
   SortAlphabetical(wordsDatabase, numWords);
 
-  do {
-    // show first word (alphabetical order)
-    while (i < *numWords) {
-      printf("Object: %s\n", wordsDatabase[i]->wordName);
-      for (j = 0; j < wordsDatabase[i]->numOfClues; j++) {
-        printf("  %s: %s\n", wordsDatabase[i]->clues[j].relation, wordsDatabase[i]->clues[j].relationValue);
-      }
+  while (i < *numWords) {
+    // show word (alphabetical order)
+    printf("\n");
+    printf("Object: %s\n", wordsDatabase[i]->wordName);
+    for (j = 0; j < wordsDatabase[i]->numOfClues; j++) {
+      printf("  %s: %s\n", wordsDatabase[i]->clues[j].relation, wordsDatabase[i]->clues[j].relationValue);
+    }
 
-      // options:
+    // options:
+    printf("\n[N] - Next, [P] - Previous, [X] - Exit\n");
+    printf("Enter your choice: ");
+    scanf("%1s", input);
+    printf("\n");
+
+    // handle invalid input, should be valid option only
+    while (strcmp(input, "N") != 0 && strcmp(input, "P") != 0 && strcmp(input, "X") != 0 &&
+           strcmp(input, "n") != 0 && strcmp(input, "p") != 0 && strcmp(input, "x") != 0) {
+      printf("Invalid input, choose from [N/P/X] only. Please try again.\n");
       printf("\n[N] - Next, [P] - Previous, [X] - Exit\n");
       printf("Enter your choice: ");
-      scanf(" %c", &input);
-      printf("\n");
-
-      // convert input to uppercase
-      if (input >= 'a' && input <= 'z') {
-        input = input - 32;
-      }
-
-      // handle invalid input
-      while (input != 'N' && input != 'P' && input != 'X') {
-        printf("Invalid input. Please try again.\n");
-        printf("\n[N] - Next, [P] - Previous, [X] - Exit\n");
-        printf("Enter your choice: ");
-        scanf(" %c", &input);
-      }
-
-      // handle cases at start and end of the list
-      while (i == 0 && input == 'P') {
-        printf("\nNo previous word. Please try again.\n");
-        printf("\n[N] - Next, [X] - Exit\n");
-        printf("Enter your choice: ");
-        scanf(" %c", &input);
-      } 
-      while (i == *numWords - 1 && input == 'N') {
-        printf("\nNo next word. Please try again.\n");
-        printf("\n[P] - Previous, [X] - Exit\n");
-        printf("Enter your choice: ");
-        scanf(" %c", &input);
-      }
-        
-
-      if (input == 'N') {
-        // continue
-        i++;
-      } 
-      else if (input == 'P') {
-        // continue
-        i--;
-      } 
-      else if (input == 'X') {
-        // exit
-        exitFlag = 1;
-      }
+      scanf("%1s", input);
     }
-  } while (exitFlag == 0 || i < *numWords);
 
+    // if all valid
+    if (strcmp(input, "N") == 0 || strcmp(input, "n") == 0) {
+      // handle cases at start (valid input)
+      if (i == *numWords - 1) {
+        printf("\nNo next word. Please try again.\n");
+      } else {
+        i++;
+      }
+    } 
+
+    if (strcmp(input, "P") == 0 || strcmp(input, "p") == 0) {
+      // handle cases at end (valid input)
+      if (i == 0) {
+        printf("\nNo previous word. Please try again.\n");
+      } else {
+        i--;
+      }
+    } 
+
+    if (strcmp(input, "X") == 0 || strcmp(input, "x") == 0) {
+      // exit
+      return;
+    }
+
+  }
 }
 
 void AddWord(Words *wordsDatabase, int *numWords) {
@@ -509,8 +487,8 @@ void AddWord(Words *wordsDatabase, int *numWords) {
 
   // check if word already exists in the database
   if (SearchWord(wordsDatabase, numWords, input) > 0) {
-    printf("\nWord already exists in the database.\n");
-    return;
+    printf("\nWord already exists in the database. Overwrite? [y/n]\n");
+    // TODO: support overwriting of words
   }
 
   strcpy(wordsDatabase[*numWords]->wordName, input);
@@ -523,6 +501,13 @@ void AddClues(Words *wordsDatabase, int *numWords) {
   String20 input;
   String30 relation;
   String30 relationValue;
+
+  if (*numWords == 0) {
+    printf("No words in the database. Please add words first.\n");
+    return;
+  }
+
+  DisplayAllWords(wordsDatabase, numWords);
 
   printf("\nEnter word to add clues to: ");
   scanf("%s", input);
@@ -562,36 +547,71 @@ void AddClues(Words *wordsDatabase, int *numWords) {
 }
 
 void ModifyEntry(Words *wordsDatabase, int *numWords) {
-  int i, index;
+  int i, index, choice;
   String20 input;
+
+  if (*numWords == 0) {
+    printf("No words in the database. Please add words first.\n");
+    return;
+  }
+
+  DisplayAllWords(wordsDatabase, numWords);
+
   printf("\nEnter word to modify: ");
   scanf("%s", input);
+
   // check if word exists in the database
   index = SearchWord(wordsDatabase, numWords, input);
   if (index < 0) {
     printf("Word does not exist in the database.\n");
     return;
   }
-  printf("\nEnter new word: ");
-  scanf("%s", wordsDatabase[index]->wordName);
-  printf("Word successfully modified.\n");
+
+  // TODO: ask user if they want to modify the word or the clues
+  while (choice != 0) {
+    printf("[1] - Modify the Word, [2] - Modify a Clue, [0] - Go back to Admin Menu.\n");
+    printf("Enter the choice you want to modify: ");
+    scanf("%d", &choice);
+    printf("\n");
+    if (choice == 1) {
+      printf("\nEnter new word: ");
+      scanf("%s", wordsDatabase[index]->wordName);
+      // TODO: handle if word already exists in the database (should be unique/no duplicates)
+      // --> maybe call AddWord() that handles overwriting of words
+      printf("Word successfully modified.\n");
+    }
+    else if (choice == 2) {
+      // modify a clue
+    }
+    else if (choice == 0) {
+      return;
+    }
+    else {
+      printf("Invalid input. Please try again.\n");
+    }
+  }
 }
 
 void DeleteWord(Words *wordsDatabase, int *numWords) {
   int i, index;
   String20 input;
+
   printf("\nEnter word to delete: ");
   scanf("%s", input);
+
   // check if word exists in the database
   index = SearchWord(wordsDatabase, numWords, input);
   if (index < 0) {
     printf("Word does not exist in the database.\n");
     return;
   }
+
   for (i = index; i < *numWords - 1; i++) {
     *wordsDatabase[i] = *wordsDatabase[i + 1];
   }
+
   (*numWords)--;
+
   printf("Word successfully deleted.\n");
 }
 
@@ -599,19 +619,24 @@ void DeleteClue(Words *wordsDatabase, int *numWords) {
   int i, j, index, indexClue;
   String20 input;
   String30 relation;
+
   printf("\nEnter word to delete clue from: ");
   scanf("%s", input);
+
   // check if word exists in the database
   index = SearchWord(wordsDatabase, numWords, input);
   if (index < 0) {
     printf("Word does not exist in the database.\n");
     return;
   }
+
   printf("\nEnter relation to delete: ");
   scanf("%30s", relation);
   for (i = 0; i < wordsDatabase[index]->numOfClues; i++) {
+    // if relation exists in the word's clues
     if (strcmp(relation, wordsDatabase[index]->clues[i].relation) == 0) {
       for (j = i; j < wordsDatabase[index]->numOfClues - 1; j++) {
+        // shift all clues to the left
         wordsDatabase[index]->clues[j] = wordsDatabase[index]->clues[j + 1];
       }
       wordsDatabase[index]->numOfClues--;
@@ -736,7 +761,7 @@ void ImportDataFromFile(Words *wordsDatabase, int *numWords) {
   fclose(file);
 }
 
-void ExportDataToFile() {}
+void ExportDataToFile(Words *wordsDatabase, int *numWords) {}
 
 // Menu for the Admin Phase
 // each word has at most 10 clues (relations):
@@ -745,7 +770,7 @@ void AdminMenu(Words *wordsDatabase, int *numWords) {
   while (!exitFlagToMainMenu) {
     printf("\n--------------Admin Menu--------------\n");
     printf("[1] Add Word \n");
-    printf("[2] Add clues\n");
+    printf("[2] Add Clues\n");
     printf("[3] Modify Entry\n");
     printf("[4] Delete Word\n");
     printf("[5] Delete Clue\n");
@@ -755,32 +780,40 @@ void AdminMenu(Words *wordsDatabase, int *numWords) {
     printf("[9] Import Data from a File\n");
     printf("[0] Go Back to Main Menu\n");
     printf("---------------------------------------\n");
-    printf("\nEnter your choice: ");
+    printf("\nEnter the number of your choice: ");
     scanf("%d", &input);
+
+    // validate input
+    while (input < 0 || input > 9) {
+      printf("\nInvalid input. Please try again.\n");
+      printf("\nEnter the number of your choice: ");
+      scanf("%d", &input);
+    }
+
     switch (input) {
     case 0:
       exitFlagToMainMenu = 1;
       break;
     case 1:
-      // AddWord();
+      AddWord(wordsDatabase, numWords);
       break;
     case 2:
-      // AddClues();
+      AddClues(wordsDatabase, numWords);
       break;
     case 3:
-      // ModifyEntry();
+      ModifyEntry(wordsDatabase, numWords);
       break;
     case 4:
-      // DeleteWord();
+      DeleteWord(wordsDatabase, numWords);
       break;
     case 5:
-      // DeleteClue();
+      DeleteClue(wordsDatabase, numWords);
       break;
     case 6:
-      // ViewWords();
+      ViewWords(wordsDatabase, numWords);
       break;
     case 7:
-      // ViewClues();
+      ViewClues(wordsDatabase, numWords);
       break;
     case 8:
       // ExportDataToFile();
