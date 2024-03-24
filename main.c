@@ -339,22 +339,53 @@ int SearchWord(Words *wordsDatabase, int *numWords, char key[]) {
   return -1;
 }
 
-void OverwriteWord(Words *wordsDatabase, int *numWords, String20 wordToOverride, String20 newWord) {
-  int i, index;
+/*
+ * Assumes that word already exists in the database.
+ * NOTE: check if this is 'callable' in ImportDataFromFile()
+ * */
+void OverwriteWord(Words *wordsDatabase, int *numWords, String20 origWord, String20 newWord) {
+  int i, newWordIndex;
   String20 input;
 
-  // handle if word already exists in the database (should be unique/no duplicates)
-  index = SearchWord(wordsDatabase, numWords, newWord);
-  if (index > 0) {
+  // if newWord already exists in the database (newWord should be unique, for no duplicates)
+  newWordIndex = SearchWord(wordsDatabase, numWords, newWord);
+  if (newWordIndex > 0) {
     printf("Word already exists in the database. Please try again.\n");
     return;
   }
 
-  // if unique:
-  strcpy(wordToOverride, newWord);
+  // if newWord is unique, then overwrite
+  strcpy(origWord, newWord);
 }
 
-void OverwriteClue(Words *wordsDatabase, int *numWords) {
+// FIX: should not include any 'ask for input' (scanf)
+void OverwriteClue(Words *wordsDatabase, int *numWords, String30 origClue, String30 origClueValue, String30 newClue, String30 newClueValue) {
+  int i, j, origClueIndex;
+  String20 input;
+  String30 relation;
+  String30 relationValue;
+
+  // check if word exists in the database
+  index = SearchWord(wordsDatabase, numWords, input);
+  if (index < 0) {
+    printf("Word does not exist in the database.\n");
+    return;
+  }
+
+  printf("\nEnter relation to overwrite: ");
+  scanf("%30s", relation);
+  for (i = 0; i < wordsDatabase[index]->numOfClues; i++) {
+    // if relation exists in the word's clues
+    if (strcmp(relation, wordsDatabase[index]->clues[i].relation) == 0) {
+      printf("\nEnter new relation value: ");
+      scanf("%30s", relationValue);
+      strcpy(wordsDatabase[index]->clues[i].relationValue, relationValue);
+      printf("Clue successfully overwritten.\n");
+      return;
+    }
+  }
+  printf("Clue does not exist in the database.\n");
+  }
 }
 
 /*
@@ -584,7 +615,7 @@ void AddCluesUI(Words *wordsDatabase, int *numWords) {
 }
 
 void ModifyEntry(Words *wordsDatabase, int *numWords) {
-  int i, origIndex, tempIndex, choice;
+  int i, origIndex, newWordIndex, choice;
   String20 input, newWord;
 
   if (*numWords == 0) {
@@ -621,13 +652,14 @@ void ModifyEntry(Words *wordsDatabase, int *numWords) {
       printf("\nEnter new word: ");
       scanf("%s", newWord);
 
+      // overwrite original word with new word if newWord is unique
       OverwriteWord(wordsDatabase, numWords, wordsDatabase[origIndex]->wordName, newWord);
       printf("Word successfully modified.\n");
     }
-    // modify a clue
+    // modify a clue in the selected word
     else if (choice == 2) {
       // search for the clue in the selected word
-      // search for the clue in the selected word
+      printf("Clue successfully modified.\n");
     }
     else if (choice == 0) {
       return;

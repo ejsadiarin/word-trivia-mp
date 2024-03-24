@@ -43,8 +43,8 @@ void GamePhase(Words *wordsDatabase, int *numWords);
 
 // Admin Phase Functions
 void DisplayAllWords(Words *wordsDatabase, int *numWords);
-void OverrideWord(Words *wordsDatabase, int *numWords);
-void OverwriteClue(Words *wordsDatabase, int *numWords);
+void OverwriteWord(Words *wordsDatabase, int *numWords, String20 origWord, String20 newWord);
+void OverwriteClue(Words *wordsDatabase, int *numWords, String30 origRelation, String30 origRelationValue, String30 newRelation, String30 newRelationValue);
 void ViewClues(Words *wordsDatabase, int *numWords);
 void ViewWords(Words *wordsDatabase, int *numWords);
 void AddWord(Words *wordsDatabase, int *numWords);
