@@ -339,6 +339,24 @@ int SearchWord(Words *wordsDatabase, int *numWords, char key[]) {
   return -1;
 }
 
+void OverwriteWord(Words *wordsDatabase, int *numWords, String20 wordToOverride, String20 newWord) {
+  int i, index;
+  String20 input;
+
+  // handle if word already exists in the database (should be unique/no duplicates)
+  index = SearchWord(wordsDatabase, numWords, newWord);
+  if (index > 0) {
+    printf("Word already exists in the database. Please try again.\n");
+    return;
+  }
+
+  // if unique:
+  strcpy(wordToOverride, newWord);
+}
+
+void OverwriteClue(Words *wordsDatabase, int *numWords) {
+}
+
 /*
  * TODO: ViewClues()
  * Show a listing of all words before asking your user to type the word whose clues he wants to view.
@@ -475,6 +493,7 @@ void ViewWords(Words *wordsDatabase, int *numWords) {
 
 void AddWord(Words *wordsDatabase, int *numWords) {
   String20 input;
+  int index;
 
   // check if there is still space in the database
   if (*numWords == MAX_WORDS) {
@@ -485,17 +504,57 @@ void AddWord(Words *wordsDatabase, int *numWords) {
   printf("\nEnter word to add: ");
   scanf("%s", input);
 
-  // check if word already exists in the database
-  if (SearchWord(wordsDatabase, numWords, input) > 0) {
-    printf("\nWord already exists in the database. Overwrite? [y/n]\n");
-    // TODO: support overwriting of words
+  // if word already exists in the database, exit
+  index = SearchWord(wordsDatabase, numWords, input);
+  if (index > 0) {
+    printf("\nWord already exists in the database.\n");
+    return;
   }
 
+  // add new unique word
   strcpy(wordsDatabase[*numWords]->wordName, input);
   (*numWords)++;
+  // add clues to the new word
+  AddCluesAction(wordsDatabase, numWords, index);
 }
 
-void AddClues(Words *wordsDatabase, int *numWords) {
+/*
+ * Assume that the word already exists in the database.
+ * */
+void AddCluesAction(Words *wordsDatabase, int *numWords, int wordIndex) {
+  String30 relation;
+  String30 relationValue;
+  char yn;
+  int willRepeat = 0;
+
+  do {
+    // add clues to the word
+    printf("\nEnter relation: ");
+    scanf("%30s", relation);
+    printf("\nEnter relation value: ");
+    scanf("%30s", relationValue);
+    strcpy(wordsDatabase[wordIndex]->clues[wordsDatabase[wordIndex]->numOfClues].relation, relation);
+    strcpy(wordsDatabase[wordIndex]->clues[wordsDatabase[wordIndex]->numOfClues].relationValue, relationValue);
+    wordsDatabase[wordIndex]->numOfClues++;
+
+    printf("Added new clue to word %s!\n", wordsDatabase[wordIndex]->wordName);
+
+    // ask if user wants to add more clues
+    printf("\nDo you want to add more clues? [y/n]: ");
+    scanf(" %c", &yn);
+    if (yn == 'y' || yn == 'Y') {
+      willRepeat = 1;
+    } else if (yn == 'n' || yn == 'N') {
+      willRepeat = 0;
+    } else {
+      printf("Invalid input. Exiting...\n");
+      willRepeat = 0;
+    }
+  } while (willRepeat == 1);
+
+}
+
+void AddCluesUI(Words *wordsDatabase, int *numWords) {
   int i, j, index, willRepeat = 0;
   char yn;
   String20 input;
@@ -519,36 +578,14 @@ void AddClues(Words *wordsDatabase, int *numWords) {
     return;
   }
 
-  do {
-    // add clues to the word
-    printf("\nEnter relation: ");
-    scanf("%30s", relation);
-    printf("\nEnter relation value: ");
-    scanf("%30s", relationValue);
-    strcpy(wordsDatabase[index]->clues[wordsDatabase[index]->numOfClues].relation, relation);
-    strcpy(wordsDatabase[index]->clues[wordsDatabase[index]->numOfClues].relationValue, relationValue);
-    wordsDatabase[index]->numOfClues++;
-
-    printf("Added new clue to word %s!\n", input);
-
-    // ask if user wants to add more clues
-    printf("\nDo you want to add more clues? [y/n]: ");
-    scanf(" %c", &yn);
-    if (yn == 'y' || yn == 'Y') {
-      willRepeat = 1;
-    } else if (yn == 'n' || yn == 'N') {
-      willRepeat = 0;
-    } else {
-      printf("Invalid input. Exiting...\n");
-      willRepeat = 0;
-    }
-  } while (willRepeat == 1);
+  // if word exists in the database, then add clues
+  AddCluesAction(wordsDatabase, numWords, index);
 
 }
 
 void ModifyEntry(Words *wordsDatabase, int *numWords) {
-  int i, index, choice;
-  String20 input;
+  int i, j, origIndex, tempIndex, choice;
+  String20 input, newWord;
 
   if (*numWords == 0) {
     printf("No words in the database. Please add words first.\n");
@@ -561,27 +598,40 @@ void ModifyEntry(Words *wordsDatabase, int *numWords) {
   scanf("%s", input);
 
   // check if word exists in the database
-  index = SearchWord(wordsDatabase, numWords, input);
-  if (index < 0) {
+  origIndex = SearchWord(wordsDatabase, numWords, input);
+  if (origIndex < 0) {
     printf("Word does not exist in the database.\n");
     return;
   }
 
   // TODO: ask user if they want to modify the word or the clues
   while (choice != 0) {
+    // show selected entry to be modified:
+    for (i = 0; i < *numWords; i++) {
+      if (strcmp(input, wordsDatabase[i]->wordName) == 0) {
+        printf("Object: %s\n", wordsDatabase[i]->wordName);
+        for (j = 0; j < wordsDatabase[i]->numOfClues; j++) {
+          printf("  %s: %s\n", wordsDatabase[i]->clues[j].relation, wordsDatabase[i]->clues[j].relationValue);
+        }
+      }
+    }
+
     printf("[1] - Modify the Word, [2] - Modify a Clue, [0] - Go back to Admin Menu.\n");
     printf("Enter the choice you want to modify: ");
     scanf("%d", &choice);
     printf("\n");
+
     if (choice == 1) {
       printf("\nEnter new word: ");
-      scanf("%s", wordsDatabase[index]->wordName);
-      // TODO: handle if word already exists in the database (should be unique/no duplicates)
-      // --> maybe call AddWord() that handles overwriting of words
+      scanf("%s", newWord);
+
+      OverwriteWord(wordsDatabase, numWords, wordsDatabase[origIndex]->wordName, newWord);
       printf("Word successfully modified.\n");
     }
+    // modify a clue
     else if (choice == 2) {
-      // modify a clue
+      // search for the clue in the selected word
+      // search for the clue in the selected word
     }
     else if (choice == 0) {
       return;
@@ -798,7 +848,7 @@ void AdminMenu(Words *wordsDatabase, int *numWords) {
       AddWord(wordsDatabase, numWords);
       break;
     case 2:
-      AddClues(wordsDatabase, numWords);
+      AddCluesUI(wordsDatabase, numWords);
       break;
     case 3:
       ModifyEntry(wordsDatabase, numWords);
