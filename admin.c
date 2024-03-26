@@ -38,7 +38,7 @@ typedef struct
 
 /******ADMIN PHASE*******/
 
-void SortAlphabetical(Words wordsDatabase, int *numWords)
+void SortEntriesAlphabetically(Words wordsDatabase, int *numWords)
 {
   int i, j;
   WordType temp;
@@ -67,7 +67,7 @@ void DisplayAllWords(Words wordsDatabase, int *numWords)
     return;
   }
 
-  SortAlphabetical(wordsDatabase, numWords);
+  SortEntriesAlphabetically(wordsDatabase, numWords);
   for (i = 0; i < *numWords; i++)
   {
     printf("%s\n", wordsDatabase[i].wordName);
@@ -76,14 +76,28 @@ void DisplayAllWords(Words wordsDatabase, int *numWords)
 
 /*
  *
- * Returns the index of the word in the database, otherwise -1
+ * Returns the index of the word in the database, otherwise -1 (-1 means unique, does not yet exist)
  * */
-int SearchWord(Words wordsDatabase, int *numWords, String20 key)
+int SearchWordIndex(Words wordsDatabase, int *numWords, String20 key)
 {
   int i;
+  SortEntriesAlphabetically(wordsDatabase, numWords);
   for (i = 0; i < *numWords; i++)
   {
     if (strcmp(key, wordsDatabase[i].wordName) == 0)
+    {
+      return i;
+    }
+  }
+  return -1;
+}
+
+int SearchClueIndex(CluesType clues[], int *numOfClues, String30 key)
+{
+  int i;
+  for (i = 0; i < *numOfClues; i++)
+  {
+    if (strcmp(key, clues[i].relation) == 0)
     {
       return i;
     }
@@ -101,7 +115,7 @@ void OverwriteWord(Words wordsDatabase, int *numWords, String20 origWord, String
   String20 input;
 
   // if newWord already exists in the database (newWord should be unique, for no duplicates)
-  newWordIndex = SearchWord(wordsDatabase, numWords, newWord);
+  newWordIndex = SearchWordIndex(wordsDatabase, numWords, newWord);
   if (newWordIndex > 0)
   {
     printf("Word already exists in the database. Please try again.\n");
@@ -151,7 +165,7 @@ void OverwriteClue(CluesType clues[], int *numOfClues, String30 newClue, String3
 /*
  * Assume that the word already exists in the database.
  * */
-void AddCluesAction(Words wordsDatabase, int *numWords, int wordIndex)
+void AddCluesAction(Words wordsDatabase, int wordIndex)
 {
   String30 relation;
   String30 relationValue;
@@ -168,10 +182,12 @@ void AddCluesAction(Words wordsDatabase, int *numWords, int wordIndex)
     do
     {
       // add clues to the word
-      printf("\nEnter relation: ");
+      printf("\n");
+      printf("Enter relation: ");
       scanf("%30s", relation);
-      printf("\nEnter relation value: ");
+      printf("Enter relation value: ");
       scanf("%30s", relationValue);
+      printf("\n");
 
       strcpy(wordsDatabase[wordIndex].clues[wordsDatabase[wordIndex].numOfClues].relation, relation);
       strcpy(wordsDatabase[wordIndex].clues[wordsDatabase[wordIndex].numOfClues].relationValue, relationValue);
@@ -209,7 +225,7 @@ void AddCluesAction(Words wordsDatabase, int *numWords, int wordIndex)
 
 void AddCluesUI(Words wordsDatabase, int *numWords)
 {
-  int i, j, index, willRepeat = 0;
+  int i, j, wordIndex, clueIndex, willRepeat = 0;
   char yn;
   String20 input;
   String30 relation;
@@ -226,17 +242,16 @@ void AddCluesUI(Words wordsDatabase, int *numWords)
   printf("\nEnter word to add clues to: ");
   scanf("%s", input);
 
-  // check if word exists in the database
-  index = SearchWord(wordsDatabase, numWords, input);
-  if (index < 0)
+  wordIndex = SearchWordIndex(wordsDatabase, numWords, input);
+  // if word exists in the database
+  if (wordIndex != -1)
   {
-    printf("Word does not exist in the database. Cannot add clues.\n");
-    return;
+    // then add clues
+    AddCluesAction(wordsDatabase, wordIndex);
   }
   else
   {
-    // if word exists in the database, then add clues
-    AddCluesAction(wordsDatabase, numWords, index);
+    printf("Word does not exist in the database. Cannot add clues.\n");
   }
 }
 
@@ -278,7 +293,7 @@ void ViewClues(Words wordsDatabase, int *numWords)
     return;
   }
 
-  index = SearchWord(wordsDatabase, numWords, word);
+  index = SearchWordIndex(wordsDatabase, numWords, word);
   if (index >= 0)
   {
     printf("Object: %s\n", wordsDatabase[index].wordName);
@@ -314,7 +329,7 @@ void ViewWords(Words wordsDatabase, int *numWords)
     return;
   }
 
-  SortAlphabetical(wordsDatabase, numWords);
+  SortEntriesAlphabetically(wordsDatabase, numWords);
 
   do
   {
@@ -364,7 +379,7 @@ void ViewWords(Words wordsDatabase, int *numWords)
   //   printf("No words in the database. Please add words first.\n");
   //   return;
   // }
-  // SortAlphabetical(wordsDatabase, numWords);
+  // SortEntriesAlphabetically(wordsDatabase, numWords);
   // for (i = 0; i < *numWords; i++) {
   //   printf("Object: %s\n", wordsDatabase[i]->wordName);
   //   for (j = 0; j < wordsDatabase[i]->numOfClues; j++) {
@@ -378,10 +393,14 @@ void ViewWords(Words wordsDatabase, int *numWords)
   // }
 }
 
+/*
+ * */
 void AddWord(Words wordsDatabase, int *numWords)
 {
   String20 input;
   int index;
+
+  SortEntriesAlphabetically(wordsDatabase, numWords);
 
   // check if there is still space in the database
   if (*numWords == MAX_WORDS)
@@ -394,18 +413,18 @@ void AddWord(Words wordsDatabase, int *numWords)
   scanf("%s", input);
 
   // if word already exists in the database, exit
-  index = SearchWord(wordsDatabase, numWords, input);
-  if (index > 0)
+  index = SearchWordIndex(wordsDatabase, numWords, input);
+  if (index != -1)
   {
-    printf("\nWord already exists in the database.\n");
+    printf("\nWord already exists in the database. Exiting...\n");
     return;
   }
 
   // add new unique word
   strcpy(wordsDatabase[*numWords].wordName, input);
-  (*numWords)++;
   // add clues to the new word
-  AddCluesAction(wordsDatabase, numWords, index);
+  AddCluesAction(wordsDatabase, *numWords);
+  (*numWords)++;
 }
 
 void ModifyEntry(Words wordsDatabase, int *numWords)
@@ -413,6 +432,8 @@ void ModifyEntry(Words wordsDatabase, int *numWords)
   int i, j, origIndex, newWordIndex, choice = -1;
   String20 input, newWord;
   String30 newClue, newClueValue;
+
+  SortEntriesAlphabetically(wordsDatabase, numWords);
 
   if (*numWords == 0)
   {
@@ -426,7 +447,7 @@ void ModifyEntry(Words wordsDatabase, int *numWords)
   scanf("%s", input);
 
   // check if word exists in the database
-  origIndex = SearchWord(wordsDatabase, numWords, input);
+  origIndex = SearchWordIndex(wordsDatabase, numWords, input);
   if (origIndex < 0)
   {
     printf("Word does not exist in the database.\n");
@@ -485,12 +506,16 @@ void DeleteWord(Words wordsDatabase, int *numWords)
   int i, index;
   String20 input;
 
+  SortEntriesAlphabetically(wordsDatabase, numWords);
+
+  DisplayAllWords(wordsDatabase, numWords);
+
   printf("\nEnter word to delete: ");
   scanf("%s", input);
 
-  // check if word exists in the database
-  index = SearchWord(wordsDatabase, numWords, input);
-  if (index < 0)
+  index = SearchWordIndex(wordsDatabase, numWords, input);
+  // if word does not exist in the database, exit
+  if (index == -1)
   {
     printf("Word does not exist in the database.\n");
     return;
@@ -512,11 +537,13 @@ void DeleteClue(Words wordsDatabase, int *numWords)
   String20 input;
   String30 relation;
 
+  SortEntriesAlphabetically(wordsDatabase, numWords);
+
   printf("\nEnter word to delete clue from: ");
   scanf("%s", input);
 
   // check if word exists in the database
-  index = SearchWord(wordsDatabase, numWords, input);
+  index = SearchWordIndex(wordsDatabase, numWords, input);
   if (index < 0)
   {
     printf("Word does not exist in the database.\n");
