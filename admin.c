@@ -530,11 +530,11 @@ void DeleteWord(Words wordsDatabase, int *numWords)
 
   DisplayAllWords(wordsDatabase, numWords);
 
-  printf("\nEnter word to delete: ");
+  printf("\nEnter the word you want to delete: ");
   scanf("%s", input);
 
   index = SearchWordIndex(wordsDatabase, numWords, input);
-  // if word does not exist in the database, exit
+  // if word does not exist (is Unique) in the database, exit
   if (index == -1)
   {
     printf("Word does not exist in the database.\n");
@@ -543,6 +543,7 @@ void DeleteWord(Words wordsDatabase, int *numWords)
 
   for (i = index; i < *numWords - 1; i++)
   {
+    // shift left
     wordsDatabase[i] = wordsDatabase[i + 1];
   }
 
