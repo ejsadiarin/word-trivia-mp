@@ -553,7 +553,7 @@ void DeleteWord(Words wordsDatabase, int *numWords)
 
 void DeleteClue(Words wordsDatabase, int *numWords)
 {
-  int i, j, origIndex, indexClue;
+  int n, i, j, wordToDeleteIndex, indexClue, clueChoice;
   String20 input;
   String30 relation;
 
@@ -563,32 +563,42 @@ void DeleteClue(Words wordsDatabase, int *numWords)
   printf("\nEnter the word you want to delete a clue from: ");
   scanf("%s", input);
 
-  origIndex = SearchWordIndex(wordsDatabase, numWords, input);
-  // if word exist
-  if (origIndex != -1)
+  wordToDeleteIndex = SearchWordIndex(wordsDatabase, numWords, input);
+  // if wordToDeleteIndex exist/is not unique
+  if (wordToDeleteIndex != -1)
   {
+    // display
     printf("\n---------------------------------------\n");
-    printf("CHOSEN WORD: %s\n", wordsDatabase[origIndex].wordName);
-  }
-
-  printf("\nEnter relation to delete: ");
-  scanf("%30s", relation);
-  for (i = 0; i < wordsDatabase[origIndex].numOfClues; i++)
-  {
-    // if relation exists in the word's clues
-    if (strcmp(relation, wordsDatabase[origIndex].clues[i].relation) == 0)
+    printf("FROM WORD: %s\n", wordsDatabase[wordToDeleteIndex].wordName);
+    for (n = 0; n < wordsDatabase[wordToDeleteIndex].numOfClues; n++)
     {
-      for (j = i; j < wordsDatabase[origIndex].numOfClues - 1; j++)
+      printf("[%d] %s: %s\n", n + 1, wordsDatabase[wordToDeleteIndex].clues[n].relation, wordsDatabase[wordToDeleteIndex].clues[n].relationValue);
+    }
+    printf("Choose the number of the clue to delete: ");
+    scanf("%d", &clueChoice);
+    if (clueChoice > wordsDatabase[wordToDeleteIndex].numOfClues || clueChoice < 1)
+    {
+      printf("Invalid number. Exiting...\n");
+    }
+    else {
+      for (i = clueChoice - 1; i < wordsDatabase[wordToDeleteIndex].numOfClues; i++)
       {
-        // shift all clues to the left
-        wordsDatabase[origIndex].clues[j] = wordsDatabase[origIndex].clues[j + 1];
+        for (j = i; j < wordsDatabase[wordToDeleteIndex].numOfClues - 1; j++)
+        {
+          // shift all clues to the left
+          wordsDatabase[wordToDeleteIndex].clues[j] = wordsDatabase[wordToDeleteIndex].clues[j + 1];
+        }
+        wordsDatabase[wordToDeleteIndex].numOfClues--;
+        printf("Clue successfully deleted.\n");
+        return;
       }
-      wordsDatabase[origIndex].numOfClues--;
-      printf("Clue successfully deleted.\n");
-      return;
     }
   }
-  printf("Clue does not exist in the database.\n");
+  else 
+  {
+    printf("Clue does not exist in the database.\n");
+  }
+
 }
 
 /*
