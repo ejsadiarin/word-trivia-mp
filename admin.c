@@ -111,19 +111,19 @@ int SearchClueIndex(CluesType clues[], int *numOfClues, String30 key)
  * */
 void OverwriteWord(Words wordsDatabase, int *numWords, String20 origWord, String20 newWord)
 {
-  int i, newWordIndex;
-  String20 input;
+  int newWordIndex;
 
-  // if newWord already exists in the database (newWord should be unique, for no duplicates)
   newWordIndex = SearchWordIndex(wordsDatabase, numWords, newWord);
-  if (newWordIndex > 0)
+  // if unique, then overwrite
+  if (newWordIndex == -1)
   {
-    printf("Word already exists in the database. Please try again.\n");
-    return;
+    strcpy(origWord, newWord);
+    printf("Word successfully overwritten/modified.\n");
   }
-
-  // if newWord is unique, then overwrite
-  strcpy(origWord, newWord);
+  else 
+  {
+    printf("Word already exists in the database. Exiting...\n");
+  }
 }
 
 /*
@@ -154,7 +154,7 @@ void OverwriteClue(CluesType clues[], int *numOfClues, String30 newClue, String3
   {
     strcpy(clues[currentClueIndex].relation, newClue);
     strcpy(clues[currentClueIndex].relationValue, newClueValue);
-    printf("Clues successfully overwritten.\n");
+    printf("Clues successfully overwritten/modified.\n");
   }
   else
   {
@@ -370,7 +370,7 @@ void ViewWords(Words wordsDatabase, int *numWords)
     {
       printf("Invalid input. Please try again.\n");
     }
-  } while (i < *numWords - 1 && willRepeat == 1);
+  } while (i < *numWords && willRepeat == 1);
 
   // int i, j, index;
   // char input;
@@ -429,7 +429,7 @@ void AddWord(Words wordsDatabase, int *numWords)
 
 void ModifyEntry(Words wordsDatabase, int *numWords)
 {
-  int i, j, origIndex, newWordIndex, choice = -1;
+  int i, j, origIndex, newWordIndex, choice = -1, newWordChoice, clueChoice;
   String20 input, newWord;
   String30 newClue, newClueValue;
 
@@ -444,7 +444,7 @@ void ModifyEntry(Words wordsDatabase, int *numWords)
   DisplayAllWords(wordsDatabase, numWords);
 
   printf("\nEnter word to modify: ");
-  scanf("%s", input);
+  scanf("%20s", input);
 
   // check if word exists in the database
   origIndex = SearchWordIndex(wordsDatabase, numWords, input);
@@ -457,7 +457,8 @@ void ModifyEntry(Words wordsDatabase, int *numWords)
   while (choice != 0)
   {
     // show selected entry to be modified:
-    printf("Object: %s\n", wordsDatabase[origIndex].wordName);
+    printf("\n---------------------------------------\n");
+    printf("CHOSEN WORD: %s\n", wordsDatabase[origIndex].wordName);
     for (i = 0; i < wordsDatabase[origIndex].numOfClues; i++)
     {
       printf("  %s: %s\n", wordsDatabase[origIndex].clues[i].relation, wordsDatabase[origIndex].clues[i].relationValue);
@@ -470,25 +471,44 @@ void ModifyEntry(Words wordsDatabase, int *numWords)
 
     if (choice == 1)
     {
-      printf("\nEnter new word: ");
+      printf("Enter new word: ");
       scanf("%s", newWord);
+      //
+      // newWordChoice = SearchWordIndex(wordsDatabase, numWords, newWord);
+      // // if unique then overwrite/modify
+      // if (newWordChoice == -1) {
+      // }
 
       // overwrite original word with new word if newWord is unique
       OverwriteWord(wordsDatabase, numWords, wordsDatabase[origIndex].wordName, newWord);
-      printf("Word successfully modified.\n");
     }
     // modify a clue in the selected word
     else if (choice == 2)
     {
-      printf("\nEnter new clue (relation): ");
-      scanf("%s", newClue);
-      printf("\nEnter new clue value (relation value): ");
-      scanf("%s", newClueValue);
+      printf("\n---------------------------------------\n");
+      printf("CHOSEN WORD: %s\n", wordsDatabase[origIndex].wordName);
+      for (j = 0; j < wordsDatabase[origIndex].numOfClues; j++)
+      {
+        printf("[%d] %s: %s\n", j + 1, wordsDatabase[origIndex].clues[j].relation, wordsDatabase[origIndex].clues[j].relationValue);
+      }
+      printf("Choose the number of the clue to modify: ");
+      scanf("%d", &clueChoice);
+      if (clueChoice > wordsDatabase[origIndex].numOfClues || clueChoice < 1)
+      {
+        printf("Invalid number. Exiting...\n");
+      }
+      else {
+        printf("Enter new clue (relation): ");
+        scanf("%30s", newClue);
+        printf("\nEnter new clue value (relation value): ");
+        scanf("%30s", newClueValue);
 
-      // search for the clue in the selected word
-      OverwriteClue(wordsDatabase[origIndex].clues, &wordsDatabase[origIndex].numOfClues, newClue, newClueValue);
-
-      printf("Clue successfully modified.\n");
+        // search for the clue in the selected word
+        strcpy(wordsDatabase[origIndex].clues[clueChoice - 1].relation, newClue);
+        strcpy(wordsDatabase[origIndex].clues[clueChoice - 1].relationValue, newClueValue);
+        printf("Clues successfully overwritten/modified.\n");
+        // OverwriteClue(wordsDatabase[origIndex].clues, &wordsDatabase[origIndex].numOfClues, newClue, newClueValue);
+      }
     }
     else if (choice == 0)
     {
@@ -533,36 +553,37 @@ void DeleteWord(Words wordsDatabase, int *numWords)
 
 void DeleteClue(Words wordsDatabase, int *numWords)
 {
-  int i, j, index, indexClue;
+  int i, j, origIndex, indexClue;
   String20 input;
   String30 relation;
 
-  SortEntriesAlphabetically(wordsDatabase, numWords);
+  // SortEntriesAlphabetically(wordsDatabase, numWords);
+  DisplayAllWords(wordsDatabase, numWords);
 
-  printf("\nEnter word to delete clue from: ");
+  printf("\nEnter the word you want to delete a clue from: ");
   scanf("%s", input);
 
-  // check if word exists in the database
-  index = SearchWordIndex(wordsDatabase, numWords, input);
-  if (index < 0)
+  origIndex = SearchWordIndex(wordsDatabase, numWords, input);
+  // if word exist
+  if (origIndex != -1)
   {
-    printf("Word does not exist in the database.\n");
-    return;
+    printf("\n---------------------------------------\n");
+    printf("CHOSEN WORD: %s\n", wordsDatabase[origIndex].wordName);
   }
 
   printf("\nEnter relation to delete: ");
   scanf("%30s", relation);
-  for (i = 0; i < wordsDatabase[index].numOfClues; i++)
+  for (i = 0; i < wordsDatabase[origIndex].numOfClues; i++)
   {
     // if relation exists in the word's clues
-    if (strcmp(relation, wordsDatabase[index].clues[i].relation) == 0)
+    if (strcmp(relation, wordsDatabase[origIndex].clues[i].relation) == 0)
     {
-      for (j = i; j < wordsDatabase[index].numOfClues - 1; j++)
+      for (j = i; j < wordsDatabase[origIndex].numOfClues - 1; j++)
       {
         // shift all clues to the left
-        wordsDatabase[index].clues[j] = wordsDatabase[index].clues[j + 1];
+        wordsDatabase[origIndex].clues[j] = wordsDatabase[origIndex].clues[j + 1];
       }
-      wordsDatabase[index].numOfClues--;
+      wordsDatabase[origIndex].numOfClues--;
       printf("Clue successfully deleted.\n");
       return;
     }
