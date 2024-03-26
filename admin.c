@@ -581,17 +581,14 @@ void DeleteClue(Words wordsDatabase, int *numWords)
       printf("Invalid number. Exiting...\n");
     }
     else {
-      for (i = clueChoice - 1; i < wordsDatabase[wordToDeleteIndex].numOfClues; i++)
+      for (i = clueChoice - 1; i < wordsDatabase[wordToDeleteIndex].numOfClues - 1; i++)
       {
-        for (j = i; j < wordsDatabase[wordToDeleteIndex].numOfClues - 1; j++)
-        {
-          // shift all clues to the left
-          wordsDatabase[wordToDeleteIndex].clues[j] = wordsDatabase[wordToDeleteIndex].clues[j + 1];
-        }
-        wordsDatabase[wordToDeleteIndex].numOfClues--;
-        printf("Clue successfully deleted.\n");
-        return;
+        // shift all clues to the left
+        wordsDatabase[wordToDeleteIndex].clues[i] = wordsDatabase[wordToDeleteIndex].clues[i + 1];
       }
+      wordsDatabase[wordToDeleteIndex].numOfClues--;
+      printf("Clue successfully deleted.\n");
+      return;
     }
   }
   else 
