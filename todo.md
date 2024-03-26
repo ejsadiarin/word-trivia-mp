@@ -1,48 +1,56 @@
 # 2024-03-26 17:12
 `admin.c`:
-- AddCluesUI works with its AddCluesAction
-- ViewClues - works as intended
-- DeleteWord - works as intended
-- DeleteClue - works as intended
 
-THOUGHTS:
-- what if i add SortAlphabetical for every function
 
-FIX: AddWord works with its AddCluesAction
-- major bug: if latest word has 10 clues (maximum), then you add new word - it copies the latest word 10 clues
+# 2024-03-27 00:01
 
-FIX: ModifyEntry
-- enter 3: good
-- enter word to modify: good
-- entering 1 (modify the word itself)
-  - new word should be unique (if not unique then go back to AdminMenu)
-- entering 2 (modify a clue): 
-  - first, it should ask for what clue (the number (index + 1) of clue starting from 1 to n ) to modify (add visual number ui or a table starting from 1)
-    - should not show garbage values
+Import
+- load text file --> input filename
+- put data to importedWordDatabase
+- if word from wordDatabase (main database) already exist then:
+  - ask user if want to overwrite exisiting word:
+    - if yes, overwrite current word of wordDatabase with word of importedWordDatabase (including trivia/clues) --> wordDatabase[i] = importedWordDatabase[i];
+    - if no, retain current word of wordDatabase
+- if word from importedWordDatabase is unique (== -1), then it will be added (call AddWord)
+- format is same as export: 
+Object: Table<next line>
+Kind of: Furniture<next line>
+Part: Top<next line>
+Part: Leg<next line>
+Height: Meter<next line>
+Make: Wood, Plastic<next line>
+Color: Brown, White, Black<next line>
+<nextline>
+Object: Picture Frame<nextline>
+Kind of: Home Decor<nextline>
+Make: Wood, Aluminum, Plastic, Glass<nextline>
+Color: Assorted<nextline>
+Height: Inch<nextline>
+Width: Inch<nextline>
+Contains: Picture<nextline>
+<nextline>
+<end of file>
 
-```c
-printf("\n---------------------------------------\n");
-printf("CHOSEN WORD: %s\n", wordsDatabase[origIndex].wordName);
-for (j = 0; j < wordsDatabase[origIndex].numOfClues; j++)
-{
-  printf("[%d] %s: %s\n", j + 1, wordsDatabase[origIndex].clues[j].relation, wordsDatabase[origIndex].clues[j].relationValue);
-}
-printf("Choose the number of the clue to modify: ");
-scanf("%d", &clueChoice);
-if (clueChoice > wordsDatabase[origIndex].numOfClues || clueChoice < 1)
-{
-  printf("Invalid number. Exiting...\n");
-}
-else {
-  printf("Enter new clue (relation): ");
-  scanf("%30s", newClue);
-  printf("\nEnter new clue value (relation value): ");
-  scanf("%30s", newClueValue);
 
-  // search for the clue in the selected word
-  strcpy(wordsDatabase[origIndex].clues[clueChoice - 1].relation, newClue);
-  strcpy(wordsDatabase[origIndex].clues[clueChoice - 1].relationValue, newClueValue);
-  printf("Clues successfully overwritten/modified.\n");
-  // OverwriteClue(wordsDatabase[origIndex].clues, &wordsDatabase[origIndex].numOfClues, newClue, newClueValue);
-}
-```
+IMPORT PLAN:
+- load text file --> input filename
+- put data to importedWordDatabase
+- use fgets to read each line as string (char line[100], idk if 100 is limit for each line string) 
+- then remove \n (replace with \0)
+  - if empty line (line[i] == '\n') skip
+- all string that comes BEFORE ":" (colon) is the RELATION
+  - unless it is "Object"
+  - when storing in importedWordDatabase or wordDatabase to save, "Object" is not included
+- all string that comes AFTER ":" (colon) is the RELATION VALUE (exclude the space before the word)
+  - if "Object" is relation then its relation value (word) is stored in importedWordDatabase[i].wordName
+- if word from wordDatabase (main database) already exist (SearchWordIndex(wordDatabase, *numWords,
+importedWordDatabase[i].wordName) != -1) then:
+  - ask user if want to overwrite exisiting word:
+    - if yes, overwrite current word of wordDatabase with word of importedWordDatabase (including trivia/clues) --> wordDatabase[i] = importedWordDatabase[i];
+    - if no, retain current word of wordDatabase
+- if word from importedWordDatabase is unique (SearchWordIndex(wordDatabase, *numWords,
+importedWordDatabase[i].wordName) == -1), then it will be added (call AddWord)
+- fgets until end of file (like feof)
+
+EXPORT PLAN
+- given the current state of the wordDatabase, use fprintf

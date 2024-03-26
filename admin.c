@@ -473,11 +473,6 @@ void ModifyEntry(Words wordsDatabase, int *numWords)
     {
       printf("Enter new word: ");
       scanf("%s", newWord);
-      //
-      // newWordChoice = SearchWordIndex(wordsDatabase, numWords, newWord);
-      // // if unique then overwrite/modify
-      // if (newWordChoice == -1) {
-      // }
 
       // overwrite original word with new word if newWord is unique
       OverwriteWord(wordsDatabase, numWords, wordsDatabase[origIndex].wordName, newWord);
@@ -503,11 +498,9 @@ void ModifyEntry(Words wordsDatabase, int *numWords)
         printf("\nEnter new clue value (relation value): ");
         scanf("%30s", newClueValue);
 
-        // search for the clue in the selected word
         strcpy(wordsDatabase[origIndex].clues[clueChoice - 1].relation, newClue);
         strcpy(wordsDatabase[origIndex].clues[clueChoice - 1].relationValue, newClueValue);
         printf("Clues successfully overwritten/modified.\n");
-        // OverwriteClue(wordsDatabase[origIndex].clues, &wordsDatabase[origIndex].numOfClues, newClue, newClueValue);
       }
     }
     else if (choice == 0)
