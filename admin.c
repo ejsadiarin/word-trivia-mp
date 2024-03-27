@@ -165,67 +165,16 @@ void OverwriteClue(CluesType clues[], int *numOfClues, String30 newClue, String3
 /*
  * Assume that the word already exists in the database.
  * */
-void AddCluesAction(Words wordsDatabase, int wordIndex)
+void AddCluesAction(Words wordsDatabase, int wordIndex, String30 relation, String30 relationValue)
 {
-  String30 relation;
-  String30 relationValue;
-  char yn;
-  int willRepeat = 0;
-
-  if (wordsDatabase[wordIndex].numOfClues >= MAX_CLUES)
-  {
-    printf("Clues maximum limit (10) reached.\n");
-    return;
-  }
-  else
-  {
-    do
-    {
-      // add clues to the word
-      printf("\n");
-      printf("Enter relation: ");
-      scanf("%30s", relation);
-      printf("Enter relation value: ");
-      scanf("%30s", relationValue);
-      printf("\n");
-
-      strcpy(wordsDatabase[wordIndex].clues[wordsDatabase[wordIndex].numOfClues].relation, relation);
-      strcpy(wordsDatabase[wordIndex].clues[wordsDatabase[wordIndex].numOfClues].relationValue, relationValue);
-      wordsDatabase[wordIndex].numOfClues++;
-
-      printf("Added new clue to word %s!\n", wordsDatabase[wordIndex].wordName);
-
-      // ask if user wants to add more clues
-      printf("\nDo you want to add more clues? [y/n]: ");
-      scanf(" %c", &yn);
-      if (yn == 'y' || yn == 'Y')
-      {
-        if (wordsDatabase[wordIndex].numOfClues >= MAX_CLUES)
-        {
-          printf("Clues maximum limit (10) reached. Exiting...\n");
-          willRepeat = 0;
-        }
-        else
-        {
-          willRepeat = 1;
-        }
-      }
-      else if (yn == 'n' || yn == 'N')
-      {
-        willRepeat = 0;
-      }
-      else
-      {
-        printf("Invalid input. Exiting...\n");
-        willRepeat = 0;
-      }
-    } while (willRepeat == 1);
-  }
+  strcpy(wordsDatabase[wordIndex].clues[wordsDatabase[wordIndex].numOfClues].relation, relation);
+  strcpy(wordsDatabase[wordIndex].clues[wordsDatabase[wordIndex].numOfClues].relationValue, relationValue);
+  wordsDatabase[wordIndex].numOfClues++;
 }
 
 void AddCluesUI(Words wordsDatabase, int *numWords)
 {
-  int i, j, wordIndex, clueIndex, willRepeat = 0;
+  int i, j, wordIndex, willRepeat = 0;
   char yn;
   String20 input;
   String30 relation;
@@ -246,8 +195,54 @@ void AddCluesUI(Words wordsDatabase, int *numWords)
   // if word exists in the database
   if (wordIndex != -1)
   {
-    // then add clues
-    AddCluesAction(wordsDatabase, wordIndex);
+    if (wordsDatabase[wordIndex].numOfClues >= MAX_CLUES)
+    {
+      printf("Clues maximum limit (10) reached.\n");
+      return;
+    } 
+    else
+    {
+      // then add clues
+      do
+      {
+        // add clues to the word
+        printf("\n");
+        printf("Enter relation: ");
+        scanf("%30s", relation);
+        printf("Enter relation value: ");
+        scanf("%30s", relationValue);
+        printf("\n");
+
+        AddCluesAction(wordsDatabase, wordIndex, relation, relationValue);
+        printf("Added new clue to word %s!\n", wordsDatabase[wordIndex].wordName);
+
+        // ask if user wants to add more clues
+        printf("\nDo you want to add more clues? [y/n]: ");
+        scanf(" %c", &yn);
+
+        if (yn == 'y' || yn == 'Y')
+        {
+          if (wordsDatabase[wordIndex].numOfClues >= MAX_CLUES)
+          {
+            printf("Clues maximum limit (10) reached. Exiting...\n");
+            willRepeat = 0;
+          }
+          else
+          {
+            willRepeat = 1;
+          }
+        }
+        else if (yn == 'n' || yn == 'N')
+        {
+          willRepeat = 0;
+        }
+        else
+        {
+          printf("Invalid input. Exiting...\n");
+          willRepeat = 0;
+        }
+      } while (willRepeat == 1);
+    }
   }
   else
   {
@@ -412,7 +407,7 @@ void AddWord(Words wordsDatabase, int *numWords, String20 input)
   // add new unique word
   strcpy(wordsDatabase[*numWords].wordName, input);
   // add clues to the new word
-  AddCluesAction(wordsDatabase, *numWords);
+  AddCluesUI(wordsDatabase, numWords);
   (*numWords)++;
 }
 
@@ -768,7 +763,7 @@ void AdminMenu(Words *wordsDatabase, int *numWords)
       // ExportDataToFile();
       break;
     case 9:
-      // ImportDataFromFile();
+      // Import();
       break;
     default:
       break;
