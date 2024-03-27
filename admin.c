@@ -395,22 +395,11 @@ void ViewWords(Words wordsDatabase, int *numWords)
 
 /*
  * */
-void AddWord(Words wordsDatabase, int *numWords)
+void AddWord(Words wordsDatabase, int *numWords, String20 input)
 {
-  String20 input;
   int index;
 
   SortEntriesAlphabetically(wordsDatabase, numWords);
-
-  // check if there is still space in the database
-  if (*numWords == MAX_WORDS)
-  {
-    printf("Database is full. Cannot add more words.\n");
-    return;
-  }
-
-  printf("\nEnter word to add: ");
-  scanf("%s", input);
 
   // if word already exists in the database, exit
   index = SearchWordIndex(wordsDatabase, numWords, input);
@@ -595,114 +584,118 @@ void DeleteClue(Words wordsDatabase, int *numWords)
 /*
  * TODO: The data in the text file is assumed to be in the format indicated in Export.
  */
-// void ImportDataFromFile(Words *wordsDatabase, int *numWords) {
-//   FILE *file;
-//   char filename[50];
-//   char line[100];
-//   WordType temp_entry;
-//   int i, willOverwrite = 0;
-//   char input;
-//
-//   // ask for filename
-//   printf("\nEnter filename of your words (should end with .txt): ");
-//   scanf("%s", filename);
-//   printf("\n");
-//
-//   file = fopen(filename, "r");
-//   if (file == NULL) {
-//     printf("Error opening file while reading.\n");
-//     return;
-//   }
-//
-//   while (fgets(line, sizeof(line), file) != NULL) {
-//     // remove trailing \n
-//     line[strlen(line) - 1] = '\0';
-//
-//     // TODO: add/"append" imported data to the wordsDatabase
-//     // if words already exist in wordsDatabase, then:
-//     // --> ask if want existing data to be overwritten
-//     //    - if yes, then overwrite word to the existing word in wordsDatabase.
-//     //    - if no, then retain word in wordsDatabase
-//     //    - if word from imported file is unique, then it will be
-//     //    added/"appended"
-//
-//     // FIX: validate this: identify word
-//     if (strncmp(line, "Object:", 7) == 0) {
-//       // extract word as temporary for validation
-//       sscanf(line, "Object: %s", temp_entry.wordName);
-//
-//       // check if already exists in wordsDatabase
-//       for (i = 0; i < *numWords; i++) {
-//         // if exist then options...
-//         if (strcmp(temp_entry.wordName, wordsDatabase[i]->wordName) == 0) {
-//           printf("%s already exists in the database. Override? [y/n]", temp_entry.wordName);
-//           scanf(" %c", &input);
-//           if (input == 'y' || input == 'Y') {
-//             willOverwrite = 1;
-//             // sscanf(line, "Object: %s", wordsDatabase[i]->wordName);
-//             strcpy(wordsDatabase[i]->wordName, temp_entry.wordName); // redundant?
-//             // also handle the overwriting of clues
-//             printf("Word successfully overwritten with new data.\n");
-//           } else if (input == 'n' || input == 'N') {
-//             printf("Current Word %s retained.\n", wordsDatabase[i]->wordName);
-//           } else {
-//             printf("Invalid input.\n");
-//             printf("Current Word %s retained.\n", wordsDatabase[i]->wordName);
-//           }
-//         }
-//       }
-//
-//       // If word does not exist, then add it to actual wordsDatabase
-//       if (i == *numWords) {
-//         strcpy(wordsDatabase[*numWords]->wordName, temp_entry.wordName);
-//         (*numWords)++;
-//       }
-//
-//     }
-//     // identify relation and relation value
-//     else {
-//       if (*numWords == 0) {
-//         printf("Clues found before any word entry. Closing file...\n");
-//         fclose(file);
-//         return;
-//       }
-//
-//       // handle empty line (<nextline>)
-//       if (line[0] == '\0') {
-//         // printf("Empty line found. Skipping...\n");
-//         if (willOverwrite == 1) willOverwrite = 0;
-//         temp_entry.numOfClues = 0;
-//       }
-//       // handle clues
-//       else {
-//         if (willOverwrite) {
-//           sscanf(line, "%s %s", temp_entry.clues->relation, temp_entry.clues->relationValue);
-//           temp_entry.numOfClues++;
-//           if (temp_entry.numOfClues > MAX_CLUES) {
-//             willOverwrite = 0;
-//             // printf("Clues count for the current word exceeds the maximum limit. Skipping current clue...\n");
-//           }
-//           if (temp_entry.numOfClues <= MAX_CLUES) {
-//             printf("Clues successfully overwritten with new data.\n");
-//           }
-//
-//         }
-//         // if not overwriting (new word entry), then add its clues
-//         else {
-//           sscanf(line, "%s %s", temp_entry.clues->relation, temp_entry.clues->relationValue);
-//           temp_entry.numOfClues++;
-//           // if max clues is reached (> 10) then skip, but keep previous clues
-//           if (temp_entry.numOfClues <= MAX_CLUES) {
-//             strcpy(wordsDatabase[*numWords]->clues[wordsDatabase[*numWords]->numOfClues].relation, temp_entry.clues->relation);
-//             strcpy(wordsDatabase[*numWords]->clues[wordsDatabase[*numWords]->numOfClues].relationValue, temp_entry.clues->relationValue);
-//             wordsDatabase[*numWords]->numOfClues++;
-//           }
-//         }
-//       }
-//     }
-//   }
-//   fclose(file);
-// }
+void Import(Words wordsDatabase, int *numWords) {
+  FILE *file;
+  String30 filename;
+  char line[100];
+  WordType importedWordsDatabase;
+  int i, j, origIndex, willOverwrite = 0;
+  char input;
+
+  // ask for filename
+  printf("\nEnter filename of your words (should end with .txt): ");
+  scanf("%30s", filename);
+  printf("\n");
+
+  file = fopen(filename, "r");
+  if (file == NULL) {
+    printf("Error opening file while reading.\n");
+    return;
+  }
+
+  while (fgets(line, sizeof(line), file) != NULL) {
+    // remove trailing \n
+    line[strlen(line) - 1] = '\0';
+
+    // if empty line (line[i] == '\n') skip
+
+    // FIX: validate this: identify word
+    if (strncmp(line, "Object:", 8) == 0) {
+      // extract word as temporary for validation
+      sscanf(line, "Object: %s", importedWordsDatabase.wordName);
+
+      for (i = 0; i < *numWords; i++) {
+        origIndex = SearchWordIndex(wordsDatabase, numWords, importedWordsDatabase.wordName);
+        // if origIndex is not unique (already existing in main database)
+        if (origIndex != -1) {
+          printf("%s already exists in the database. Override? [y/n]", importedWordsDatabase.wordName);
+          scanf(" %c", &input);
+          if (input == 'y' || input == 'Y') {
+            willOverwrite = 1;
+            // sscanf(line, "Object: %s", wordsDatabase[i]->wordName);
+            // delete
+            SortEntriesAlphabetically(wordsDatabase, numWords);
+            for (j = origIndex; j < *numWords - 1; j++) {
+              // shift left
+              wordsDatabase[j] = wordsDatabase[j + 1];
+            }
+            (*numWords)--;
+
+            // then add new
+            // strcpy(wordsDatabase[*numWords].wordName, importedWordsDatabase.wordName);
+            wordsDatabase[*numWords] =  importedWordsDatabase[j];
+            (*numWords)++;
+            printf("Word successfully overwritten with new data.\n");
+          } else if (input == 'n' || input == 'N') {
+            printf("Current Word %s retained.\n", wordsDatabase[i].wordName);
+          } else {
+            printf("Invalid input.\n");
+            printf("Current Word %s retained.\n", wordsDatabase[i].wordName);
+          }
+        }
+      }
+
+      // If word does not exist, then add it to actual wordsDatabase
+      if (i == *numWords) {
+        strcpy(wordsDatabase[*numWords].wordName, importedWordsDatabase.wordName);
+        (*numWords)++;
+      }
+
+    }
+    // identify relation and relation value
+    else {
+      if (*numWords == 0) {
+        printf("Clues found before any word entry. Closing file...\n");
+        fclose(file);
+        return;
+      }
+
+      // handle empty line (<nextline>)
+      if (line[0] == '\0') {
+        // printf("Empty line found. Skipping...\n");
+        if (willOverwrite == 1) willOverwrite = 0;
+        importedWordsDatabase.numOfClues = 0;
+      }
+      // handle clues
+      else {
+        if (willOverwrite) {
+          sscanf(line, "%s %s", importedWordsDatabase.clues->relation, importedWordsDatabase.clues->relationValue);
+          importedWordsDatabase.numOfClues++;
+          if (importedWordsDatabase.numOfClues > MAX_CLUES) {
+            willOverwrite = 0;
+            // printf("Clues count for the current word exceeds the maximum limit. Skipping current clue...\n");
+          }
+          if (importedWordsDatabase.numOfClues <= MAX_CLUES) {
+            printf("Clues successfully overwritten with new data.\n");
+          }
+
+        }
+        // if not overwriting (new word entry), then add its clues
+        else {
+          sscanf(line, "%s %s", importedWordsDatabase.clues->relation, importedWordsDatabase.clues->relationValue);
+          importedWordsDatabase.numOfClues++;
+          // if max clues is reached (> 10) then skip, but keep previous clues
+          if (importedWordsDatabase.numOfClues <= MAX_CLUES) {
+            strcpy(wordsDatabase[*numWords].clues[wordsDatabase[*numWords].numOfClues].relation, importedWordsDatabase.clues->relation);
+            strcpy(wordsDatabase[*numWords].clues[wordsDatabase[*numWords].numOfClues].relationValue, importedWordsDatabase.clues->relationValue);
+            wordsDatabase[*numWords].numOfClues++;
+          }
+        }
+      }
+    }
+  }
+  fclose(file);
+}
 
 void ExportDataToFile(Words *wordsDatabase, int *numWords) {}
 
@@ -711,6 +704,7 @@ void ExportDataToFile(Words *wordsDatabase, int *numWords) {}
 void AdminMenu(Words *wordsDatabase, int *numWords)
 {
   int input, exitFlagToMainMenu = 0;
+  String20 wordToAdd;
   while (!exitFlagToMainMenu)
   {
     printf("\n--------------Admin Menu--------------\n");
@@ -742,7 +736,15 @@ void AdminMenu(Words *wordsDatabase, int *numWords)
       exitFlagToMainMenu = 1;
       break;
     case 1:
-      AddWord(*wordsDatabase, numWords);
+      // check if there is still space in the database
+      if (*numWords >= MAX_WORDS) {
+        printf("Database is full. Cannot add more words.\n");
+      } 
+      else {
+        printf("\nEnter word to add: ");
+        scanf("%s", wordToAdd);
+        AddWord(*wordsDatabase, numWords, wordToAdd);
+      }
       break;
     case 2:
       AddCluesUI(*wordsDatabase, numWords);
