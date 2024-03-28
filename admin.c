@@ -727,8 +727,27 @@ void Import(Words wordsDatabase, int *numWords) {
   }
 }
 
-void ExportDataToFile(Words wordsDatabase, int *numWords) {
+void Export(Words wordsDatabase, int *numWords) {
+  int i, j;
+  FILE *file;
+  String30 filename;
+
   SortEntriesAlphabetically(wordsDatabase, numWords);
+
+  printf("\nEnter filename to save the data (should end with .txt): ");
+  scanf("%30s", filename);
+
+  file = fopen(filename, "w");
+
+  for (i = 0; i < *numWords; i++) {
+    fprintf(file, "Object: %s\n", wordsDatabase[i].wordName);
+    for (j = 0; j < wordsDatabase[i].numOfClues; j++) {
+      fprintf(file, "%s: %s\n", wordsDatabase[i].clues[j].relation, wordsDatabase[i].clues[j].relationValue);
+    }
+    fprintf(file, "\n");
+  }
+
+  fclose(file);
 }
 
 // Menu for the Admin Phase
@@ -787,7 +806,7 @@ void AdminMenu(Words *wordsDatabase, int *numWords)
       ViewClues(*wordsDatabase, numWords);
       break;
     case 8:
-      // ExportDataToFile();
+      Export(*wordsDatabase, numWords);
       break;
     case 9:
       Import(*wordsDatabase, numWords);
