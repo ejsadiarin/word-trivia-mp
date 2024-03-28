@@ -106,7 +106,7 @@ int SearchClueIndex(CluesType clues[], int *numOfClues, String30 key)
 
 /*
  * Assumes that word already exists in the database.
- * TODO: check if this is 'callable' in ImportDataFromFile()
+ * TODO: check if this is 'callable' in Import()
  * */
 void OverwriteWord(Words wordsDatabase, int *numWords, String20 origWord, String20 newWord)
 {
@@ -171,7 +171,7 @@ void AddCluesAction(Words wordsDatabase, int wordIndex, String30 relation, Strin
   wordsDatabase[wordIndex].numOfClues++;
 }
 
-void AddCluesUI(Words wordsDatabase, int *numWords)
+void AddCluesUI(Words wordsDatabase, int *numWords, String20 processType)
 {
   int i, j, wordIndex, willRepeat = 0;
   char yn;
@@ -389,25 +389,44 @@ void ViewWords(Words wordsDatabase, int *numWords)
 
 /*
  * */
-void AddWord(Words wordsDatabase, int *numWords, String20 input)
+void AddWord(Words wordsDatabase, int *numWords, String20 input, String20 processType)
 {
   int index;
 
   SortEntriesAlphabetically(wordsDatabase, numWords);
 
-  // if word already exists in the database, exit
-  index = SearchWordIndex(wordsDatabase, numWords, input);
-  if (index != -1)
-  {
-    printf("\nWord already exists in the database. Exiting...\n");
-    return;
+  // manual means user is prompted to add clues
+  if (strcmp(processType, "manual") == 0) {
+    // if word already exists in the database, exit
+    index = SearchWordIndex(wordsDatabase, numWords, input);
+    if (index != -1)
+    {
+      printf("\nWord already exists in the database. Exiting...\n");
+      return;
+    }
+
+    // add new unique word
+    strcpy(wordsDatabase[*numWords].wordName, input);
+    // add clues to the new word
+    AddCluesUI(wordsDatabase, numWords, "manual");
+    (*numWords)++;
+  }
+  else if (strcmp(processType, "auto") == 0) {
+    // if word already exists in the database, exit
+    index = SearchWordIndex(wordsDatabase, numWords, input);
+    if (index != -1)
+    {
+      printf("\nWord already exists in the database. Exiting...\n");
+      return;
+    }
+
+    // add new unique word
+    strcpy(wordsDatabase[*numWords].wordName, input);
+    // add clues to the new word
+    AddCluesUI(wordsDatabase, numWords, "auto");
+    (*numWords)++;
   }
 
-  // add new unique word
-  strcpy(wordsDatabase[*numWords].wordName, input);
-  // add clues to the new word
-  AddCluesUI(wordsDatabase, numWords);
-  (*numWords)++;
 }
 
 void ModifyEntry(Words wordsDatabase, int *numWords)
@@ -593,11 +612,23 @@ void Import(Words wordsDatabase, int *numWords) {
   scanf("%30s", filename);
   printf("\n");
 
+  // reset the importedWordsDatabase
+  // for (i = 0; i < MAX_WORDS; i++) {
+  //   strcpy(importedWordsDatabase[i].wordName, "");
+  //   importedWordsDatabase[i].numOfClues = 0;
+  //   for (j = 0; j < MAX_CLUES; j++) {
+  //     strcpy(importedWordsDatabase[i].clues[j].relation, "");
+  //     strcpy(importedWordsDatabase[i].clues[j].relationValue, "");
+  //   }
+  // }
+
   file = fopen(filename, "r");
   if (file == NULL) {
     printf("Error opening file while reading.\n");
     return;
   }
+
+  importedWordsDatabase[i].numOfClues = 0;
 
   // HACK: STORING PHASE
   while (fgets(line, sizeof(line), file) != NULL) {
@@ -607,6 +638,7 @@ void Import(Words wordsDatabase, int *numWords) {
       // reset
       i++;
       j = 0;
+      importedWordsDatabase[i].numOfClues = 0;
     } 
     else {
       // remove trailing '\n'
@@ -686,11 +718,10 @@ void Import(Words wordsDatabase, int *numWords) {
       // HACK: OVERWRITING PHASE
       if (willOverwrite == 1) {
 
-        // NOTE: do this instead of below?
         if (importedWordsDatabase[i].numOfClues > MAX_CLUES) {
           printf("Clues maximum limit (10) reached. Skipping word entry.\n");
         } else {
-          wordsDatabase[origIndex] = importedWordsDatabase[i];
+          wordsDatabase[origIndex] = importedWordsDatabase[i]; // NOTE: do this instead of below?
           printf("Word successfully overwritten with new data.\n");
         }
 
@@ -778,11 +809,11 @@ void AdminMenu(Words *wordsDatabase, int *numWords)
       else {
         printf("\nEnter word to add: ");
         scanf("%s", wordToAdd);
-        AddWord(*wordsDatabase, numWords, wordToAdd);
       }
+        AddWord(*wordsDatabase, numWords, wordToAdd, "manual");
       break;
     case 2:
-      AddCluesUI(*wordsDatabase, numWords);
+      AddCluesUI(*wordsDatabase, numWords, "manual");
       break;
     case 3:
       ModifyEntry(*wordsDatabase, numWords);
