@@ -81,7 +81,6 @@ void DisplayAllWords(Words wordsDatabase, int *numWords)
 int SearchWordIndex(Words wordsDatabase, int *numWords, String20 key)
 {
   int i;
-  SortEntriesAlphabetically(wordsDatabase, numWords);
   for (i = 0; i < *numWords; i++)
   {
     if (strcmp(key, wordsDatabase[i].wordName) == 0)
@@ -614,7 +613,7 @@ void Import(Words wordsDatabase, int *numWords) {
       line[strlen(line) - 1] = '\0';
 
       // if WORD
-      if (strncmp(line, "Object:", 8) == 0) {
+      if (strncmp(line, "Object", 6) == 0) {
         // sscanf(line, "Object: %s", importedWordsDatabase[i].wordName); // does not work
         // find the colon position
         colon_pos = strchr(line, ':'); // returns the index of the ':'
@@ -663,14 +662,16 @@ void Import(Words wordsDatabase, int *numWords) {
       origIndex = SearchWordIndex(wordsDatabase, numWords, importedWordsDatabase[i].wordName);
       // if origIndex is not unique (already existing in main database)
       if (origIndex != -1) {
-        printf("%s already exists in the database. Overwrite Entry? [y/n]", importedWordsDatabase[i].wordName);
+        printf("%s already exists in the database. Overwrite Entry? [y/n]: ", importedWordsDatabase[i].wordName);
         scanf(" %c", &input);
         if (input == 'y' || input == 'Y') {
           willOverwrite = 1;
           // sscanf(line, "Object: %s", wordsDatabase[i]->wordName);
         } else if (input == 'n' || input == 'N') {
+          willOverwrite = 0;
           printf("Current Word Entry: %s retained.\n", wordsDatabase[origIndex].wordName);
         } else {
+          willOverwrite = -1;
           printf("Invalid input.\n");
           printf("Current Word Entry: %s retained.\n", wordsDatabase[origIndex].wordName);
         }
@@ -704,13 +705,18 @@ void Import(Words wordsDatabase, int *numWords) {
         // (*numWords)++; // WARNING: check if this limits to 150 words, not 149
         // printf("Word successfully overwritten with new data.\n");
       }
-      // if not overwriting (new word entry), then add its clues
-      else {
-        // if max clues is reached (> 10) then skip, but keep previous clues
-        if (importedWordsDatabase[i].numOfClues <= MAX_CLUES) {
-          strcpy(wordsDatabase[*numWords].clues[wordsDatabase[*numWords].numOfClues].relation, importedWordsDatabase.clues->relation);
-          strcpy(wordsDatabase[*numWords].clues[wordsDatabase[*numWords].numOfClues].relationValue, importedWordsDatabase.clues->relationValue);
-          wordsDatabase[*numWords].numOfClues++;
+      // if not overwriting (new word entry)
+      else { // willOverwrite == 0
+        // if max clues is reached (> 10 or < 0) then skip, but keep previous clues
+        if (importedWordsDatabase[i].numOfClues > MAX_CLUES || importedWordsDatabase[i].numOfClues < 0) {
+          printf("Clues maximum limit (10) reached. Skipping word entry.\n");
+        }
+        else {
+          wordsDatabase[*numWords] = importedWordsDatabase[i];
+          (*numWords)++;
+          // strcpy(wordsDatabase[*numWords].clues[wordsDatabase[*numWords].numOfClues].relation, importedWordsDatabase.clues->relation);
+          // strcpy(wordsDatabase[*numWords].clues[wordsDatabase[*numWords].numOfClues].relationValue, importedWordsDatabase.clues->relationValue);
+          // wordsDatabase[*numWords].numOfClues++;
         }
       }
     }
@@ -789,7 +795,7 @@ void AdminMenu(Words *wordsDatabase, int *numWords)
       // ExportDataToFile();
       break;
     case 9:
-      // Import();
+      Import(*wordsDatabase, numWords);
       break;
     default:
       break;
