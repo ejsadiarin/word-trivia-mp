@@ -1,11 +1,12 @@
+Object: Chair
+Prop1: hehe
+Type: oww
+popipo: ppopipipo
+Model: ddr777
+
 Object: Table
 Kind of: TestKind
 Color: Black
 Property: Yes
 Test: hehe one
 
-Object: Chair
-Prop1: hehe
-Type: oww
-WOW: ofc
-Model: ddr777

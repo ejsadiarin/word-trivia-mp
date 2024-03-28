@@ -342,7 +342,7 @@ void ViewWords(Words wordsDatabase, int *numWords)
     scanf(" %c", &input);
     printf("\n");
 
-    // Handle next/previous options
+    // handle next/previous options
     if ((input == 'N' || input == 'n'))
     {
       if (i < *numWords - 1)
@@ -366,26 +366,6 @@ void ViewWords(Words wordsDatabase, int *numWords)
       printf("Invalid input. Please try again.\n");
     }
   } while (i < *numWords && willRepeat == 1);
-
-  // int i, j, index;
-  // char input;
-  // int exitFlag = 0;
-  // if (*numWords == 0) {
-  //   printf("No words in the database. Please add words first.\n");
-  //   return;
-  // }
-  // SortEntriesAlphabetically(wordsDatabase, numWords);
-  // for (i = 0; i < *numWords; i++) {
-  //   printf("Object: %s\n", wordsDatabase[i]->wordName);
-  //   for (j = 0; j < wordsDatabase[i]->numOfClues; j++) {
-  //     printf("  %s: %s\n", wordsDatabase[i]->clues[j].relation, wordsDatabase[i]->clues[j].relationValue);
-  //   }
-  //   printf("\nPress [N] for next, [P] for previous, [X] to exit: ");
-  //   scanf(" %c", &input);
-  //   if (input == 'X' || input == 'x') {
-  //     return;
-  //   }
-  // }
 }
 
 /*
@@ -460,7 +440,7 @@ void ModifyEntry(Words wordsDatabase, int *numWords)
     }
 
     printf("[1] - Modify the Word, [2] - Modify a Clue, [0] - Go back to Admin Menu.\n");
-    printf("Enter the choice you want to modify: ");
+    printf("Enter your choice: ");
     scanf("%d", &choice);
     printf("\n");
 
@@ -753,7 +733,7 @@ void Export(Words wordsDatabase, int *numWords) {
 // Menu for the Admin Phase
 void AdminMenu(Words *wordsDatabase, int *numWords)
 {
-  int input, exitFlagToMainMenu = 0;
+  int input, i, j, exitFlagToMainMenu = 0;
   while (!exitFlagToMainMenu)
   {
     printf("\n--------------Admin Menu--------------\n");
@@ -782,6 +762,9 @@ void AdminMenu(Words *wordsDatabase, int *numWords)
     switch (input)
     {
     case 0:
+      // TODO: erase the database, since export is the only way to save
+      memset(*wordsDatabase, 0, sizeof *wordsDatabase);
+      *numWords = 0;
       exitFlagToMainMenu = 1;
       break;
     case 1:
