@@ -1,0 +1,15 @@
+Object: Apple
+Color: Red
+Taste: Sweet
+
+Object: Banana
+Color: Yellow
+Taste: Tropical
+
+Object: Orange
+Color: Orange
+Taste: Citrus
+
+Object: Strawberry
+Color: Red
+Taste: Sweet and Tart

@@ -2,7 +2,7 @@ Object: Table
 Kind of: TestKind
 Color: Black
 Property: Yes
-Test: hehe
+Test: hehe one
 
 Object: Chair
 Prop1: hehe
