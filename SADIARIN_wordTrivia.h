@@ -28,7 +28,7 @@ typedef struct {
 
 // Utility Functions
 int Search(char array[], int size, char key);
-int SearchWord(Words *wordsDatabase, int *numWords, String20 key);
+int SearchWordIndex(Words *wordsDatabase, int *numWords, String20 key);
 void SortAlphabetical(Words *wordsDatabase, int *numWords);
 
 // Game Phase Functions
@@ -36,22 +36,19 @@ int isUnique(Words *wordsDatabase);
 char generateUniqueRandomLetter(char usedLetters[], int size);
 void createBoard(char board[][MAX_BOARD_SIZE], int *row, int *col);
 int getMaxBoardSize(int numWords);
-void rowQuestionPhase(char letters[], int numOfLettersInRow,
-                      char letterTracker[]);
+void rowQuestionPhase(char letters[], int numOfLettersInRow, char letterTracker[]);
 int isWin(char board[][MAX_BOARD_SIZE], int row, int col);
 int checkRowStatus(char rowElems[], int *col);
 void GamePhase(Words *wordsDatabase, int *numWords);
 
 // Admin Phase Functions
 void DisplayAllWords(Words *wordsDatabase, int *numWords);
-void OverwriteWord(Words *wordsDatabase, int *numWords, String20 origWord,
-                   String20 newWord);
-void OverwriteClue(CluesType clues[], int *numOfClues, String30 newClue,
-                   String30 newClueValue);
+void OverwriteWord(Words *wordsDatabase, int *numWords, String20 origWord, String20 newWord);
+void OverwriteClue(CluesType clues[], int *numOfClues, String30 newClue, String30 newClueValue);
 void ViewClues(Words *wordsDatabase, int *numWords);
 void ViewWords(Words *wordsDatabase, int *numWords);
 void AddWord(Words *wordsDatabase, int *numWords);
-void AddCluesAction(Words *wordsDatabase, int *numWords, int wordIndex);
+void AddCluesAction(Words *wordsDatabase, int wordIndex);
 void AddCluesUI(Words *wordsDatabase, int *numWords);
 void ModifyEntry(Words *wordsDatabase, int *numWords);
 void DeleteWord(Words *wordsDatabase, int *numWords);
