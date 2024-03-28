@@ -584,7 +584,7 @@ void Import(Words wordsDatabase, int *numWords) {
   char line[100];
   Words importedWordsDatabase;
   int importedNumWords = 0;
-  int i = 0, j = 0, origIndex, willOverwrite = 0;
+  int i = 0, j = 0, k, origIndex, willOverwrite = 0;
   char input;
   char *colon_pos;
 
@@ -660,6 +660,7 @@ void Import(Words wordsDatabase, int *numWords) {
     for (i = 0; i < importedNumWords; i++) {
         // check if word already exists in the database
       origIndex = SearchWordIndex(wordsDatabase, numWords, importedWordsDatabase[i].wordName);
+
       // if origIndex is not unique (already existing in main database)
       if (origIndex != -1) {
         printf("%s already exists in the database. Overwrite Entry? [y/n]: ", importedWordsDatabase[i].wordName);
@@ -712,19 +713,26 @@ void Import(Words wordsDatabase, int *numWords) {
           printf("Clues maximum limit (10) reached. Skipping word entry.\n");
         }
         else {
-          wordsDatabase[*numWords] = importedWordsDatabase[i];
+          // wordsDatabase[*numWords] = importedWordsDatabase[i];
+          
+          strcpy(wordsDatabase[*numWords].wordName, importedWordsDatabase[i].wordName);
+
+          for (k = 0; k < importedWordsDatabase[i].numOfClues; k++) {
+            // wordsDatabase[*numWords - 1].clues[k] = importedWordsDatabase[i].clues[k];
+            strcpy(wordsDatabase[*numWords].clues[k].relation, importedWordsDatabase[i].clues[k].relation);
+            strcpy(wordsDatabase[*numWords].clues[k].relationValue, importedWordsDatabase[i].clues[k].relationValue);
+          }
+          wordsDatabase[*numWords].numOfClues = importedWordsDatabase[i].numOfClues; // Update the number of clues
           (*numWords)++;
-          // strcpy(wordsDatabase[*numWords].clues[wordsDatabase[*numWords].numOfClues].relation, importedWordsDatabase.clues->relation);
-          // strcpy(wordsDatabase[*numWords].clues[wordsDatabase[*numWords].numOfClues].relationValue, importedWordsDatabase.clues->relationValue);
-          // wordsDatabase[*numWords].numOfClues++;
         }
       }
     }
   }
-  SortEntriesAlphabetically(wordsDatabase, numWords);
 }
 
-void ExportDataToFile(Words *wordsDatabase, int *numWords) {}
+void ExportDataToFile(Words wordsDatabase, int *numWords) {
+  SortEntriesAlphabetically(wordsDatabase, numWords);
+}
 
 // Menu for the Admin Phase
 // each word has at most 10 clues (relations):
