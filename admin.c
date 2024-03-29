@@ -3,38 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-// #include "SADIARIN_wordTrivia.h"
-
-#define MAX_BOARD_SIZE 10
-#define MIN_BOARD_SIZE 3
-#define MAX_WORDS 150
-#define MIN_WORDS 9 // 9 to create the minimum 3x3 board
-#define MAX_CLUES 10
-
-typedef char String20[21]; // data type of the answers
-typedef char String30[31];
-
-typedef struct
-{
-  String30 relation;
-  String30 relationValue;
-} CluesType;
-
-typedef struct
-{
-  String20 wordName;
-  CluesType clues[MAX_CLUES];
-  int numOfClues;
-} WordType;
-
-typedef WordType Words[MAX_WORDS]; // this is the "database"
-
-typedef struct
-{
-  int row;
-  int col;
-  char board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
-} BoardType;
+#include "SADIARIN_wordTrivia.h"
 
 /******ADMIN PHASE*******/
 
@@ -580,14 +549,22 @@ void Import(Words wordsDatabase, int *numWords) {
   char input;
   char *colon_pos;
 
+  if (*numWords == MAX_WORDS)
+  {
+    printf("Database is full. Cannot add more words.\n");
+    return;
+  }
+
   // ask for filename
-  printf("\nEnter filename of your words (should end with .txt): ");
+  printf("\nEnter the filename to import: ");
   scanf("%30s", filename);
   printf("\n");
 
+  strcat(filename, ".txt");
+
   file = fopen(filename, "r");
   if (file == NULL) {
-    printf("Error opening file while reading.\n");
+    printf("[ ERROR ]: File does not exist.\n");
     return;
   }
 
@@ -602,6 +579,11 @@ void Import(Words wordsDatabase, int *numWords) {
       i++;
       j = 0;
       importedWordsDatabase[i].numOfClues = 0;
+      if (*numWords == MAX_WORDS)
+      {
+        printf("Database is full. Cannot add more words.\n");
+        return;
+      }
     } 
     else {
       // remove trailing '\n'
@@ -678,16 +660,20 @@ void Import(Words wordsDatabase, int *numWords) {
 
       // HACK: OVERWRITING PHASE
       if (willOverwrite == 1) {
-
         if (importedWordsDatabase[i].numOfClues > MAX_CLUES) {
           printf("Clues maximum limit (10) reached. Skipping word entry.\n");
         } else {
-          wordsDatabase[origIndex] = importedWordsDatabase[i]; // NOTE: do this instead of below?
+          wordsDatabase[origIndex] = importedWordsDatabase[i];
           printf("Word successfully overwritten with new data.\n");
         }
       }
       // if not overwriting (new word entry)
       else { // willOverwrite == 0
+        if (*numWords == MAX_WORDS)
+        {
+          printf("Database is full. Cannot add more words. Retaining previous entries...\n");
+          return;
+        }
         // if max clues is reached (> 10 or < 0) then skip, but keep previous clues
         if (importedWordsDatabase[i].numOfClues > MAX_CLUES || importedWordsDatabase[i].numOfClues < 0) {
           printf("Clues maximum limit (10) reached. Skipping word entry.\n");
@@ -712,10 +698,22 @@ void Export(Words wordsDatabase, int *numWords) {
   FILE *file;
   String30 filename;
 
+  if (*numWords == 0) {
+    printf("No words in the database. Please add words first.\n");
+    return;
+  }
+
+  if (*numWords > MAX_WORDS) {
+    printf("Error: Cannot export data entries greater than 150.\n");
+    return;
+  }
+
   SortEntriesAlphabetically(wordsDatabase, numWords);
 
-  printf("\nEnter filename to save the data (should end with .txt): ");
+  printf("\nEnter the filename to save the data to: ");
   scanf("%30s", filename);
+
+  strcat(filename, ".txt");
 
   file = fopen(filename, "w");
 

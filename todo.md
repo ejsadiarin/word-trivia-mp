@@ -52,27 +52,17 @@ importedWordDatabase[i].wordName) != -1) then:
 importedWordDatabase[i].wordName) == -1), then it will be added (call AddWord)
 - fgets until end of file (like feof)
 
-
-
-THOUGHTS:
-can encompass entries in just 1 if else statement
-- top level fgets have one if else statement: 
-  - if "Object: " (strncmp(line, "Object:", 8) == 0) 
-  - else Relation and Relation Value
-    - don't include empty lines (line[i] == '\n' || line[i] == '\0')
-    - relation is before colon
-    - relation value is after colon (exclude initial space, like line[i] == " " and then shift left
-    the relationValue string and decrement the length of the relationValue string)
-- if overwrite (y) then add another fgets to read the relation and relation value (clues)
-  - have inner fgets that if not "Object: " then it is a relation and relation value
-- if overwrite (n) then retain current entry
-
-SUGGESTION:
-- store everything in importedWordDatabase first
-- then compare wordDatabase and importedWordDatabase
-- then perform overwrite or add word with clues
-
-
-
 EXPORT PLAN
 - given the current state of the wordDatabase, use fprintf
+
+
+
+
+# 2024-03-29 15:43
+
+GAME PHASE PLAN
+
+12 words
+- 1 2 3 4 6 12
+2x6, 3x4, 1x12 --> 2x6, 3x4, 1x12
+- all equates to 12
