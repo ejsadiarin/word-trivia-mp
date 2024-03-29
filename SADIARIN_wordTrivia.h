@@ -27,7 +27,7 @@ typedef struct {
 } BoardType;
 
 // Game Phase Functions
-int isUnique(Words *wordsDatabase);
+int isUnique(Words wordsDatabase);
 char generateUniqueRandomLetter(char usedLetters[], int size);
 int SearchLetter(char array[], int size, char key);
 void createBoard(char board[][MAX_BOARD_SIZE], int *row, int *col);

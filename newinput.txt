@@ -1,0 +1,31 @@
+Object: Apple
+Color: Red
+Taste: Sweet
+
+Object: Banana
+Color: Yellow
+Taste: Tropical
+
+Object: Chair
+Prop1: hehe
+Type: oww
+popipo: ppopipipo
+Model: ddr777
+
+Object: Orange
+Color: Orange
+Taste: Citrus
+
+Object: Strawberry
+Color: Red
+Taste: Sweet and Tart
+
+Object: Table
+NEW: YES
+Color: Black
+Property: Yes
+Test: hehe one
+
+Object: table
+new: newse
+

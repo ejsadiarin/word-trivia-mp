@@ -20,7 +20,7 @@
 
 /*
  * */
-int isUnique(Words *wordsDatabase) {
+int isUnique(Words wordsDatabase) {
   int i, j, uniqueFlag, count;
 
   count = 0;      // have countWords in the Words struct array
@@ -28,7 +28,7 @@ int isUnique(Words *wordsDatabase) {
 
   for (i = 0; i < count; i++) {
     for (j = i + 1; j < count; j++) {
-      if (strcmp(wordsDatabase[i]->wordName, wordsDatabase[j]->wordName) == 0) {
+      if (strcmp(wordsDatabase[i].wordName, wordsDatabase[j].wordName) == 0) {
         uniqueFlag = 0;
       }
     }
@@ -50,22 +50,10 @@ char generateUniqueRandomLetter(char usedLetters[], int size) {
   return letter;
 }
 
-// TODO: call in createBoard()
-// int findMultiples(int Words) {
-//   int i, j;
-//   for (i = 1; i <= Words; i++) {
-//     for (j = i; j <= num; j++) {
-//       if (i * j == num) {
-//       }
-//     }
-//   }
-// }
-
 /*
  * Returns the index of the key, otherwise -1
  *
- * FIX: (1) to be called when selecting letter from board, (2) searching if word
- * (entry) exists in "database"
+ * TODO: to be called when selecting letter from board
  * */
 int SearchLetter(char array[], int size, char key) {
   int i;
@@ -105,11 +93,10 @@ void createBoard(char board[][MAX_BOARD_SIZE], int *row, int *col) {
 }
 
 /*
- * --> ask for input letter
- * --> call SearchLetter() to check if the letter exists in the current row in the
- * board
- * --> if exists, then proceed with the question (call database for word)
  * --> NOTE: this is to be called for each letter in the board
+ * --> ask for input letter
+ * --> call SearchLetter() to check if the letter exists in the current row in the board
+ * --> if exists, then proceed with the question (call database for word)
  * */
 void rowQuestionPhase(char letters[], int numOfLettersInRow, char letterTracker[]) {
   int i;
@@ -187,9 +174,6 @@ int checkRowStatus(char rowElems[], int *col) {
 
 void GamePhase(Words *wordsDatabase, int *numWords) {
   int i = 0, j = 0;
-  // NOTE: for testing
-  // int row = 10;
-  // int col = 10;
   int row;
   int col;
   String30 filename;
@@ -199,20 +183,18 @@ void GamePhase(Words *wordsDatabase, int *numWords) {
   char board[row][col];
 
   /******INITIALIZE*******/
-  Import(wordsDatabase, numWords);
+  Import(*wordsDatabase, numWords);
 
-  // WARNING: check if this logic is in Import function already
-  // make sure to have enough Words in database for the grid board
+  // WARNING: check if this logic is in Import function already make sure to have enough Words in database for the grid board
   if (*numWords > MAX_WORDS || *numWords <= 0) {
     printf("Invalid number of words in the database. Exiting...\n");
     return;
   }
 
   // ask user for dimensions of the board
-  // NOTE: uncomment if not testing
-  printf("\nEnter row of the board (min is 3, max is 10): ");
+  printf("\nEnter row of the board (min is 1, max is 15): ");
   scanf("%d", &row);
-  printf("\nEnter col of the board (min is 3, max is 10): ");
+  printf("\nEnter col of the board (min is 1, max is 15): ");
   scanf("%d", &col);
 
   // NOTE: disregard the minimum 3x3 board and 10x10 board dimension requirements (min 1, max 15)
@@ -230,7 +212,7 @@ void GamePhase(Words *wordsDatabase, int *numWords) {
     return; // HACK: exit the game phase
   }
 
-  if (isUnique(wordsDatabase)) {
+  if (isUnique(*wordsDatabase) == 1) {
     createBoard(board, &row, &col);
   }
 
@@ -897,7 +879,6 @@ void Import(Words wordsDatabase, int *numWords) {
           willOverwrite = 1;
         } else if (input == 'n' || input == 'N') {
           willOverwrite = 0;
-          printf("Current Word Entry: %s retained.\n", wordsDatabase[origIndex].wordName);
         } else {
           willOverwrite = -1;
           printf("Invalid input.\n");
@@ -919,8 +900,11 @@ void Import(Words wordsDatabase, int *numWords) {
           printf("Word successfully overwritten with new data.\n");
         }
       }
-      // if not overwriting (new word entry)
-      else { // willOverwrite == 0
+      else if (willOverwrite == 0 && origIndex != -1) {
+          printf("Current Word Entry: %s retained.\n", wordsDatabase[origIndex].wordName);
+      }
+      // if not overwriting and word is unique (new word entry)
+      else if (willOverwrite == 0 && origIndex == -1) {
         if (*numWords == MAX_WORDS)
         {
           printf("Database is full. Cannot add more words. Retaining previous entries...\n");
@@ -1070,7 +1054,7 @@ int main()
       exitFlag = 1;
       break;
     case 1:
-      // GamePhase(&wordsDatabase, &numWords);
+      GamePhase(&wordsDatabase, &numWords);
       break;
     case 2:
       AdminMenu(&wordsDatabase, &numWords);
