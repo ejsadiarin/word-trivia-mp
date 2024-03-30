@@ -27,11 +27,11 @@ typedef struct {
 } BoardType;
 
 // Game Phase Functions
-int isUnique(Words wordsDatabase);
+int isUniqueLetter(char lettersContext[], int letterCountInRow);
 char generateUniqueRandomLetter(char usedLetters[], int size);
 int SearchLetter(char array[], int size, char key);
-void createBoard(char board[][MAX_BOARD_SIZE], int *row, int *col);
-void rowQuestionPhase(char letters[], int numOfLettersInRow, char letterTracker[]);
+void CreateBoard(char board[][MAX_BOARD_SIZE], int row, int col);
+void RowQuestionPhase(Words wordsDatabase, int numWords, String20 usedWordTracker[], int *numUsedWords);
 int isWin(char board[][MAX_BOARD_SIZE], int row, int col);
 int checkRowStatus(char rowElems[], int *col);
 void GamePhase(Words *wordsDatabase, int *numWords);

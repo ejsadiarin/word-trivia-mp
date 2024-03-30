@@ -19,16 +19,16 @@
  */
 
 /*
+* Returns 1 if all letters in the array are unique, otherwise 0
  * */
-int isUnique(Words wordsDatabase) {
-  int i, j, uniqueFlag, count;
+int isUniqueLetter(char lettersContext[], int letterCountInRow) {
+  int i, j, uniqueFlag;
 
-  count = 0;      // have countWords in the Words struct array
   uniqueFlag = 1; // assume all words are unique
 
-  for (i = 0; i < count; i++) {
-    for (j = i + 1; j < count; j++) {
-      if (strcmp(wordsDatabase[i].wordName, wordsDatabase[j].wordName) == 0) {
+  for (i = 0; i < letterCountInRow; i++) {
+    for (j = i + 1; j < letterCountInRow; j++) {
+      if (lettersContext[i] == lettersContext[j]) {
         uniqueFlag = 0;
       }
     }
@@ -50,6 +50,28 @@ char generateUniqueRandomLetter(char usedLetters[], int size) {
   return letter;
 }
 
+char generateUniqueRandomLetter2(char usedLetters[]) {
+  int i;
+  char letters[27] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  char letter;
+  int letterIndex;
+  int isLetterUsed;
+
+  do {
+    isLetterUsed = 0;
+    letterIndex = rand() % (sizeof(letters) - 1);
+    letter = letters[letterIndex];
+    // check if the letter has already been used
+    for (i = 0; i < strlen(usedLetters); i++) {
+      if (usedLetters[i] == letter) {
+        isLetterUsed = 1;
+      }
+    }
+  } while (isLetterUsed == 1);
+
+  return letter;
+}
+
 /*
  * Returns the index of the key, otherwise -1
  *
@@ -67,69 +89,74 @@ int SearchLetter(char array[], int size, char key) {
 
 /*
  * Populates the board based on the Words in the file.
- * --> asks for dimension of the board
- * --> asks user for filename (loading text file of words and clues)
- * --> generate random latters but unique for each row
- * --> make sure to have enough Words in database for the grid board
+ * --> generate random letters but unique for each row
  * */
-void createBoard(char board[][MAX_BOARD_SIZE], int *row, int *col) {
-  char filename[50];
+void CreateBoard(char board[][MAX_BOARD_SIZE], int row, int col) {
   int i, j;
   srand(time(NULL));
-  char usedLetters[MAX_BOARD_SIZE];
+  char usedLetters[27];
   char uniqueLetter;
 
   // generate random letters for the board
-  for (i = 0; i < *row; i++) {
-    for (j = 0; j < *col; j++) {
-      uniqueLetter = generateUniqueRandomLetter(usedLetters, j);
+  for (i = 0; i < row; i++) {
+    // usedLetters[i] = '\0';
+    memset(usedLetters, 0, sizeof usedLetters); // clear usedLetters array
+    for (j = 0; j < col; j++) {
+      uniqueLetter = generateUniqueRandomLetter2(usedLetters);
       usedLetters[j] = uniqueLetter;
       // push the letter to board if not yet used
       board[i][j] = uniqueLetter;
+    }
+  }
+}
+
+void DisplayBoard(char board[][MAX_BOARD_SIZE], int row, int col) {
+  int i, j;
+  for (i = 0; i < row; i++) {
+    for (j = 0; j < col; j++) {
       printf("%c ", board[i][j]);
     }
     printf("\n");
   }
 }
 
-/*
- * --> NOTE: this is to be called for each letter in the board
- * --> ask for input letter
- * --> call SearchLetter() to check if the letter exists in the current row in the board
- * --> if exists, then proceed with the question (call database for word)
- * */
-void rowQuestionPhase(char letters[], int numOfLettersInRow, char letterTracker[]) {
-  int i;
-  char input;
-  for (i = 0; i < numOfLettersInRow; i++) {
-    printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i + 1,
-           i + 1);
-    scanf("%c", &input);
-    // convert input to uppercase
-    if (input >= 'a' && input <= 'z') {
-      input = input - 32;
-    }
-
-    while (input == '*' || input == '-') {
-      printf("\nInvalid input. Please try again.\n");
-      rowQuestionPhase(letters, numOfLettersInRow, letterTracker);
-    }
-
-    if (letters[i] == input && letters[i] != letterTracker[i] && input != '*' &&
-        input != '-') {
-      // proceed with the question (call database for word)
-      // TODO: generateUniqueQuestion() - if word exists in the board (current
-      // game phase)
-      letterTracker[i] = letters[i];
-    } else {
-      printf("Input does not exist in the current row. Please try again.\n");
-    }
-  }
+// --> ensure word/answer is unique (not yet used in the game/grid) - push to usedWordTracker array
+// --> if answered correctly, replace the letter with '*', otherwise '-'
+void QuestionAnswer(Words wordsDatabase, int *numWords, char row[], String20 usedWordTracker[]) {
 }
 
-// at most 10 clues per word (so word struct?)
-// there can be at most 150 Words/words (answers in the game), but a word can
-// have at most 10 clues
+/*
+ * is responsible for generating unique question from wordsDatabase
+ * check if question is unique (not yet used in the game/grid)
+ * --> if unique, then proceed with the question
+ * --> if not, then generate another question
+ * */
+void RowQuestionPhase(Words wordsDatabase, int numWords, String20 usedWordTracker[], int *numUsedWords) {
+  int i, randWordIndex, letterIndex, canProceedToNextRow = 0, isValidInput = 0;
+  srand(time(NULL));
+
+  // get random word from the database
+  randWordIndex = rand() % numWords;
+  for (i = 0; i < *numUsedWords; i++) {
+    // if word already exists in the usedWordTracker, then generate another random word from the database
+    while (strcmp(wordsDatabase[randWordIndex].wordName, usedWordTracker[i]) == 0) {
+      randWordIndex = rand() % numWords;
+    }
+  }
+  // loop until random word is unique (not included in usedWordTracker)
+  while (strcmp(wordsDatabase[randWordIndex].wordName, usedWordTracker[i]) == 0) {
+    randWordIndex = rand() % numWords;
+  }
+
+  // if unique, then push random word to usedWordTracker
+  strcpy(usedWordTracker[i], wordsDatabase[randWordIndex].wordName);
+  (*numUsedWords)++;
+
+  // START GAME: display a random clue/trivia (only 1) of the random word
+  printf("\n");
+  printf("TRIVIA: %s\n", wordsDatabase[randWordIndex].wordName);
+  printf("--> %s\n", wordsDatabase[randWordIndex].wordName);
+}
 
 // Determine if the player wins based on contents in the 2D array of characters
 // (2D strings).
@@ -159,11 +186,11 @@ int isWin(char board[][MAX_BOARD_SIZE], int row, int col) {
 // Determine if the game is over based on the contents in the 2D array of
 // characters. calls checkWinningConditions()
 // TODO: to be called every after question answered
-int checkRowStatus(char rowElems[], int *col) {
+int checkRowStatus(char currentRow[], int *col) {
   // check if col == numOfWrong (which is '-');
   int i, canProceed = 0;
   for (i = 0; i < *col; i++) {
-    if (rowElems[i] == '*') {
+    if (currentRow[i] == '*') {
       canProceed = 1;
       return canProceed;
     }
@@ -176,20 +203,11 @@ void GamePhase(Words *wordsDatabase, int *numWords) {
   int i = 0, j = 0;
   int row;
   int col;
-  String30 filename;
-  FILE *file;
-  char letterTracker[MAX_BOARD_SIZE]; // unique letter tracker (stores all "used" letters in the row)
-  String20 wordTracker[150]; // to be used in the game phase (to check if word has already been used in the game)
-  char board[row][col];
+  // char letterTracker[100]; // HACK: unique letter tracker (stores all "used" letters in the row)
+  String20 usedWordTracker[150]; // to be used in the game phase (to check if word has already been used in the game)
+  int numUsedWords = 0;
 
   /******INITIALIZE*******/
-  Import(*wordsDatabase, numWords);
-
-  // WARNING: check if this logic is in Import function already make sure to have enough Words in database for the grid board
-  if (*numWords > MAX_WORDS || *numWords <= 0) {
-    printf("Invalid number of words in the database. Exiting...\n");
-    return;
-  }
 
   // ask user for dimensions of the board
   printf("\nEnter row of the board (min is 1, max is 15): ");
@@ -206,18 +224,24 @@ void GamePhase(Words *wordsDatabase, int *numWords) {
     scanf("%d", &col);
   }
 
+  // ask for filename
+  Import(*wordsDatabase, numWords);
+
   // check if the number of words in the database is enough to create the board
   if ((row * col) > *numWords || (row * col) <= 0) {
     printf("\nInsufficient number of words to create the board. Make sure the imported file has enough words to create the board.\n");
     return; // HACK: exit the game phase
   }
 
-  if (isUnique(*wordsDatabase) == 1) {
-    createBoard(board, &row, &col);
-  }
+  // only create board if all good
+  char board[row][col];
+  CreateBoard(board, row, col);
 
   /******PLAYING PHASE*******/
   // TODO: select letter from board, then ask question (calls questionPhase())
+  String20 userAnswerInput;
+  char letterInput;
+  int randWordIndex, letterIndex, canProceedToNextRow;
 
   for (i = 0; i < row; i++) {
     // --> loop the board rows
@@ -225,12 +249,88 @@ void GamePhase(Words *wordsDatabase, int *numWords) {
     // ) has Q&A:
     // --> - then SearchLetter() if input char is in the current row in the board
     // --> - if yes, then proceed with the question (call database for word)
-    // --> ensure word/answer is unique (not yet used in the game/grid) - push
-    // to wordTracker array
+    // --> ensure word/answer is unique (not yet used in the game/grid) - push to usedWordTracker array
     // --> if answered correctly, replace the letter with '*', otherwise '-'
-    // (calls replaceLetter())
+    
+    printf("\n---------------------------------------\n");
+    DisplayBoard(board, row, col);
+
+    RowQuestionPhase(*wordsDatabase, *numWords, usedWordTracker, &numUsedWords);
+    // inputs here for letter and userAnswerInput
+    // check if canProceedToNextRow == 1, if 0 then lose
+    // --> call canProceedToNextRow() every after userAnswerInput input
+    
+    for (j = 0; j < col; j++) {
+      printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i + 1, i + 1);
+      scanf(" %c", &letterInput);
+
+      while (letterInput == '*' || letterInput == '-') {
+        printf("\nInvalid input. Please try again.\n");
+        scanf(" %c", &letterInput);
+      }
+
+      // convert letterInput to uppercase
+      if (letterInput >= 'a' && letterInput <= 'z') {
+        letterInput = letterInput - 32;
+      }
+
+      letterIndex = SearchLetter(row, col, letterInput);
+      // if letter exists, then proceed with the question (call database for word)
+      if (letterIndex != -1 && letterInput != '*' && letterInput != '-') {
+        // check if question is unique (not yet used in the game/grid)
+        // --> if unique, then proceed with the question
+        // --> if not, then generate another question
+        // ask for userAnswerInput input
+        // if userAnswerInput == wordName, then replace the letter with '*' (correct, canProceedToNextRow = 1), otherwise '-' (wrong)
+        // --> ^ mutate the row array (board)
+        
+        // get random word from the database
+        randWordIndex = rand() % numWords;
+        k = 0;
+        while (strcmp(wordsDatabase[randWordIndex].wordName, usedWordTracker[k]) == 0) {
+          // then generate another random word from the database
+          randWordIndex = rand() % numWords;
+          k++;
+        }
+        // push random word to usedWordTracker if unique
+        strcpy(usedWordTracker[i], wordsDatabase[i].wordName);
+        // START GAME: display a random clue/trivia (only 1) of the random word
+        printf("\n");
+        printf("TRIVIA: %s\n", wordsDatabase[randWordIndex].wordName);
+        printf("--> %s\n", wordsDatabase[randWordIndex].wordName);
+
+        printf("Enter your answer [enter 0 to exit game (auto lose)]: ");
+        scanf("%s", userAnswerInput);
+        printf("\n");
+
+        if (strcmp(userAnswerInput, "0") == 0) {
+          printf("Exiting game...\n");
+          return;
+        }
+
+        if (strcmp(userAnswerInput, wordsDatabase[randWordIndex].wordName) == 0) {
+          printf("Correct answer!\n");
+          // replace the letter with '*' if answered correctly
+          row[letterIndex] = '*';
+        } else {
+          printf("Wrong answer!\n");
+        }
+
+        isValidInput = 1;
+      } 
+      else {
+        printf("Letter does not exist in the current row. Please try again.\n");
+        isValidInput = 0;
+      }
+      // TODO: check this
+      canProceedToNextRow = checkRowStatus(row, &col);
+      if (canProceedToNextRow == 0) {
+        // display new board with the updated row that has '-'
+        // DisplayBoard(board, row, col);
+        printf("Wrong answer! Choose another letter in the current row...\n");
+      }
+    }
   }
-  // TODO: check every row with checkRowStatus()
 
   /******CHECK GAME STATUS IF WIN OR LOSE*******/
   isWin(board, row, col);
@@ -771,7 +871,6 @@ void DeleteClue(Words wordsDatabase, int *numWords)
 }
 
 /*
- * TODO: The data in the text file is assumed to be in the format indicated in Export.
  */
 void Import(Words wordsDatabase, int *numWords) {
   FILE *file;
@@ -887,7 +986,6 @@ void Import(Words wordsDatabase, int *numWords) {
       }
       // if unique word, if (origIndex == -1)
       else {
-        // add new unique word and its associated clues
         willOverwrite = 0;
       }
 
@@ -905,11 +1003,13 @@ void Import(Words wordsDatabase, int *numWords) {
       }
       // if not overwriting and word is unique (new word entry)
       else if (willOverwrite == 0 && origIndex == -1) {
-        if (*numWords == MAX_WORDS)
+        if (*numWords >= MAX_WORDS)
         {
-          printf("Database is full. Cannot add more words. Retaining previous entries...\n");
+          *numWords = MAX_WORDS;
+          printf("Database is now full. Cannot add more words.\n");
           return;
         }
+
         // if max clues is reached (> 10 or < 0) then skip, but keep previous clues
         if (importedWordsDatabase[i].numOfClues > MAX_CLUES || importedWordsDatabase[i].numOfClues < 0) {
           printf("Clues maximum limit (10) reached. Skipping word entry.\n");
