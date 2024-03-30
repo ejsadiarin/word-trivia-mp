@@ -214,17 +214,17 @@ void GamePhase(Words *wordsDatabase, int *numWords) {
   /******INITIALIZE*******/
 
   // ask user for dimensions of the board
-  printf("\nEnter row of the board (min is 1, max is 15): ");
+  printf("\nEnter row of the board: ");
   scanf("%d", &row);
-  printf("\nEnter col of the board (min is 1, max is 15): ");
+  printf("\nEnter col of the board: ");
   scanf("%d", &col);
 
-  // NOTE: disregard the minimum 3x3 board and 10x10 board dimension requirements (min 1, max 15)
+  // limit the board size to be MIN: 1 and MAX: 15 to fit the screen
   while (row < MIN_BOARD_SIZE || row > MAX_BOARD_SIZE || col < MIN_BOARD_SIZE || col > MAX_BOARD_SIZE) {
     printf("Invalid board size. Please try again.\n");
-    printf("\nEnter row of the board (min is 1, max is 15): ");
+    printf("\nEnter row of the board: ");
     scanf("%d", &row);
-    printf("\nEnter col of the board (min is 1, max is 15): ");
+    printf("\nEnter col of the board: ");
     scanf("%d", &col);
   }
 
@@ -234,7 +234,10 @@ void GamePhase(Words *wordsDatabase, int *numWords) {
   // check if the number of words in the database is enough to create the board
   if ((row * col) > *numWords || (row * col) <= 0) {
     printf("\nInsufficient number of words to create the board. Make sure the imported file has enough words to create the board.\n");
-    return; // HACK: exit the game phase
+    // clear the database (covers if board creation fails because of insufficient words)
+    memset(wordsDatabase, 0, sizeof *wordsDatabase);
+    *numWords = 0;
+    return;
   }
 
   // only create board if all good
