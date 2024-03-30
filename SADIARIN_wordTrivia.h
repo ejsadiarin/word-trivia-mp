@@ -31,9 +31,9 @@ int isUniqueLetter(char lettersContext[], int letterCountInRow);
 char generateUniqueRandomLetter(char usedLetters[], int size);
 int SearchLetter(char array[], int size, char key);
 void CreateBoard(char board[][MAX_BOARD_SIZE], int row, int col);
-void RowQuestionPhase(Words wordsDatabase, int numWords, String20 usedWordTracker[], int *numUsedWords);
+int RandWordQuestion(Words wordsDatabase, int numWords, String20 usedWordTracker[], int *numUsedWords);
 int isWin(char board[][MAX_BOARD_SIZE], int row, int col);
-int checkRowStatus(char rowElems[], int *col);
+int CheckRowStatus(char currentRow[], int col);
 void GamePhase(Words *wordsDatabase, int *numWords);
 
 // Admin Phase Functions

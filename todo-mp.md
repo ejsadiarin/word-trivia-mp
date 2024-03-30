@@ -58,7 +58,7 @@ when a letter is "picked":
 
 
 FLOW:
-GamePhase -> createBoard() -> gameLogic() -> displayQuestion() -> displayTrivia() -> displayBoard()
+GamePhase -> CreateBoard() -> gameLogic() -> displayQuestion() -> displayTrivia() -> displayBoard()
 
 Game is over if:
 - all rows have at least one "*" on them (WIN)

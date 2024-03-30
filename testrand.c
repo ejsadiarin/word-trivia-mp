@@ -10,6 +10,26 @@ typedef struct {
     char wordName[MAX_WORD_LENGTH];
 } Word;
 
+int getRandomWordIndex(const Word wordsDatabase[], const char usedWordTracker[][MAX_WORD_LENGTH], int numUsedWords) {
+    int randWordIndex;
+    int alreadyUsed;
+
+    do {
+        randWordIndex = rand() % NUM_WORDS;
+        alreadyUsed = 0;
+
+        // Check if the word has been used before
+        for (int i = 0; i < numUsedWords; i++) {
+            if (strcmp(wordsDatabase[randWordIndex].wordName, usedWordTracker[i]) == 0) {
+                alreadyUsed = 1;
+                break;
+            }
+        }
+    } while (alreadyUsed);
+
+    return randWordIndex;
+}
+
 int main() {
     Word wordsDatabase[NUM_WORDS];
     char usedWordTracker[NUM_WORDS][MAX_WORD_LENGTH]; // Track used words
@@ -24,25 +44,16 @@ int main() {
 
     srand(time(NULL)); // Seed the random number generator
 
-    // Generate random words from the database until all words are used
+    // Display one random word at a time
+    printf("Press Enter to display a random word (q to quit):\n");
     while (numUsedWords < NUM_WORDS) {
-        int randWordIndex = rand() % NUM_WORDS;
-        int alreadyUsed = 0;
+        getchar(); // Wait for user to press Enter
+        int randWordIndex = getRandomWordIndex(wordsDatabase, usedWordTracker, numUsedWords);
 
-        // Check if the word has been used before
-        for (int i = 0; i < numUsedWords; i++) {
-            if (strcmp(wordsDatabase[randWordIndex].wordName, usedWordTracker[i]) == 0) {
-                alreadyUsed = 1;
-                break;
-            }
-        }
-
-        if (!alreadyUsed) {
-            // If not used before, print the word and mark it as used
-            printf("Random word: %s\n", wordsDatabase[randWordIndex].wordName);
-            strcpy(usedWordTracker[numUsedWords], wordsDatabase[randWordIndex].wordName);
-            numUsedWords++;
-        }
+        // Print the word and mark it as used
+        printf("Random word: %s\n", wordsDatabase[randWordIndex].wordName);
+        strcpy(usedWordTracker[numUsedWords], wordsDatabase[randWordIndex].wordName);
+        numUsedWords++;
     }
 
     return 0;
