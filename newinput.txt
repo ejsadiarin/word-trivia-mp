@@ -26,6 +26,14 @@ Color: Black
 Property: Yes
 Test: hehe one
 
+Object: asdgve
+vfdb: dsfbdf
+dsbdsfb: weg
+
+Object: ninth
+hehe: hihi
+asdf: vare
+
 Object: table
 new: newse
 

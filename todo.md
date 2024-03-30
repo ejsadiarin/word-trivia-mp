@@ -75,3 +75,17 @@ GAME PHASE PLAN
 
 
 
+
+
+
+
+WILL I ERASE THE WORDSBASE DATA IF IMPORT FAILS?
+- since import inevitably stores the data, board created or not.
+
+IMPORT from gamephase - fail, retained wordsDatabase data, BUT board will not be created
+--> check if it will be wiped if import is failed (no board created)
+- erase in main case 1 if yes ^ (memset thing)
+
+IMPORT from gamephase - success, retained wordsDatabase data, board created
+
+

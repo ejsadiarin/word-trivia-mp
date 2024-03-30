@@ -12,8 +12,8 @@
 #include <string.h>
 #include <time.h>
 
-#define MAX_BOARD_SIZE 10
-#define MIN_BOARD_SIZE 3
+#define MAX_BOARD_SIZE 15
+#define MIN_BOARD_SIZE 1
 
 typedef char Word20[21]; // data type of the answers
 typedef char Relation30[31];
@@ -227,7 +227,7 @@ void gamePhase() {
   // NOTE: uncomment if not testing
   printf("\nEnter row of the board (min is 3, max is 10): ");
   scanf("%d", &row);
-  printf("\nEnter col of the board (min is 3, max is 10): ");
+  printf("\nEnter col of the board (max): ");
   scanf("%d", &col);
   // check if row and col are within the range (input validation)
   // while (row < MIN_BOARD_SIZE || row > MAX_BOARD_SIZE || col < MIN_BOARD_SIZE || col > MAX_BOARD_SIZE) {
@@ -241,7 +241,7 @@ void gamePhase() {
   // if (validEntriesFlag) {
   //   createBoard(board, &row, &col);
   // }
-  char board[row][col];
+  char board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
   createBoard(board, &row, &col);
   DisplayBoard(board, row, col);
 

@@ -19,18 +19,11 @@ typedef struct {
 
 typedef WordType Words[MAX_WORDS]; // this is the "database"
 
-// WARNING: do i need this?
-typedef struct {
-  int row;
-  int col;
-  char board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
-} BoardType;
-
 // Game Phase Functions
 int isUniqueLetter(char lettersContext[], int letterCountInRow);
 char generateUniqueRandomLetter(char usedLetters[], int size);
 int SearchLetter(char array[], int size, char key);
-void CreateBoard(char board[][MAX_BOARD_SIZE], int row, int col);
+void CreateBoard(char board[][MAX_BOARD_SIZE], int *row, int *col);
 int RandWordQuestion(Words wordsDatabase, int numWords, String20 usedWordTracker[], int *numUsedWords);
 int isWin(char board[][MAX_BOARD_SIZE], int row, int col);
 int CheckRowStatus(char currentRow[], int col);
