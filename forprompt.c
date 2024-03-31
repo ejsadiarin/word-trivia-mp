@@ -26,7 +26,7 @@ typedef WordType Words[MAX_WORDS]; // this is the "database"
 
 // Game Phase Functions
 int isUniqueLetter(char lettersContext[], int letterCountInRow);
-char generateUniqueRandomLetter(char usedLetters[], int size);
+char GenerateUniqueRandomLetter(char usedLetters[], int size);
 int SearchLetter(char array[], int size, char key);
 void CreateBoard(char board[][MAX_BOARD_SIZE], int *row, int *col);
 int QuestionAnswerPhase(Words wordsDatabase, int numWords, String20 usedWordTracker[], int *numUsedWords);
@@ -76,21 +76,21 @@ int isUniqueLetter(char lettersContext[], int letterCountInRow) {
   return uniqueFlag;
 }
 
-char generateUniqueRandomLetter(char usedLetters[], int size) {
+char GenerateUniqueRandomLetter(char usedLetters[], int size) {
   int i;
   char letters[27] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   char letter = letters[rand() % (sizeof(letters) - 1)];
   // check if the letter has already been used
   for (i = 0; i < size; i++) {
     if (usedLetters[i] == letter) {
-      return generateUniqueRandomLetter(usedLetters, size);
+      return GenerateUniqueRandomLetter(usedLetters, size);
     }
   }
 
   return letter;
 }
 
-char generateUniqueRandomLetter2(char usedLetters[]) {
+char GenerateUniqueRandomLetter2(char usedLetters[]) {
   int i;
   char letters[27] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   char letter;
@@ -141,8 +141,8 @@ void CreateBoard(char board[][MAX_BOARD_SIZE], int *row, int *col) {
   for (i = 0; i < *row; i++) {
     memset(usedLetters, 0, sizeof usedLetters); // clear usedLetters array
     for (j = 0; j < *col; j++) {
-      uniqueLetter = generateUniqueRandomLetter2(usedLetters);
-      // uniqueLetter = generateUniqueRandomLetter(usedLetters, j);
+      uniqueLetter = GenerateUniqueRandomLetter2(usedLetters);
+      // uniqueLetter = GenerateUniqueRandomLetter(usedLetters, j);
       usedLetters[j] = uniqueLetter;
       // push the letter to board if not yet used
       board[i][j] = uniqueLetter;

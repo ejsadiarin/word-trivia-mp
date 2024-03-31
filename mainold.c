@@ -39,21 +39,21 @@ typedef WordType Entries[150];
 
 // typedef WordType Board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
 
-char generateUniqueRandomLetter(char usedLetters[], int size) {
+char GenerateUniqueRandomLetter(char usedLetters[], int size) {
   int i;
   char letters[27] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   char letter = letters[rand() % (sizeof(letters) - 1)];
   // check if the letter has already been used
   for (i = 0; i < size; i++) {
     if (usedLetters[i] == letter) {
-      return generateUniqueRandomLetter(usedLetters, size);
+      return GenerateUniqueRandomLetter(usedLetters, size);
     }
   }
 
   return letter;
 }
 
-char generateUniqueRandomLetter2(char usedLetters[]) {
+char GenerateUniqueRandomLetter2(char usedLetters[]) {
   int i;
   char letters[27] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   char letter;
@@ -113,7 +113,7 @@ void createBoard(char board[][MAX_BOARD_SIZE], int *row, int *col) {
   for (i = 0; i < *row; i++) {
     memset(usedLetters, 0, sizeof usedLetters); // clear usedLetters array
     for (j = 0; j < *col; j++) {
-      uniqueLetter = generateUniqueRandomLetter2(usedLetters);
+      uniqueLetter = GenerateUniqueRandomLetter2(usedLetters);
       usedLetters[j] = uniqueLetter;
       // push the letter to board if not yet used
       board[i][j] = uniqueLetter;

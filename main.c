@@ -38,14 +38,14 @@ SearchLetter(char row[], int size, char key)
   return -1;
 }
 
-/* generateUniqueRandomLetter generates a random letter that has not yet been used or is unique
+/* GenerateUniqueRandomLetter generates a random letter that has not yet been used or is unique
  *
  * @param usedLetters - array of characters, representing the used letters
  * @return a unique random letter that is not inside the parameter usedLetters
  * Pre-condition: usedLetters is not null, rand() is seeded
  * */
 char 
-generateUniqueRandomLetter(char usedLetters[])
+GenerateUniqueRandomLetter(char usedLetters[])
 {
   int i;
   char letters[27] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -72,7 +72,7 @@ generateUniqueRandomLetter(char usedLetters[])
  * @param board - 2D array of characters representing the board
  * @param *row  - an int pointer to the number of rows of the board
  * @param *col - an int pointer to the number of columns of the board
- * Pre-condition: board is not null, row > 0, col > 0, srand() seeds the random number generator
+ * Pre-condition: board is not null, row must be from 1-15, col must also be from 1-15, srand() seeds the random number generator
  * */
 void 
 CreateBoard(char board[][MAX_BOARD_SIZE], int *row, int *col)
@@ -86,7 +86,7 @@ CreateBoard(char board[][MAX_BOARD_SIZE], int *row, int *col)
   for (i = 0; i < *row; i++) {
     memset(usedLetters, 0, sizeof usedLetters); // clear usedLetters array
     for (j = 0; j < *col; j++) {
-      uniqueLetter = generateUniqueRandomLetter(usedLetters);
+      uniqueLetter = GenerateUniqueRandomLetter(usedLetters);
       usedLetters[j] = uniqueLetter;
       // push the letter to board if not yet used
       board[i][j] = uniqueLetter;

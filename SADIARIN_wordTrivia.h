@@ -21,7 +21,7 @@ typedef WordType Words[MAX_WORDS]; // this is the "database"
 
 // Game Phase Functions
 int SearchLetter(char row[], int size, char key);
-char generateUniqueRandomLetter(char usedLetters[]);
+char GenerateUniqueRandomLetter(char usedLetters[]);
 void CreateBoard(char board[][MAX_BOARD_SIZE], int *row, int *col);
 void DisplayBoard(char board[][MAX_BOARD_SIZE], int row, int col);
 int QuestionAnswerPhase(Words wordsDatabase, int *numWords, String20 usedWordTracker[], int *numUsedWords, char board[][MAX_BOARD_SIZE], int letterIndex, int currentRow);

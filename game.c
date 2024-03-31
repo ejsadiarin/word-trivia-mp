@@ -245,7 +245,7 @@ void Import(Words wordsDatabase, int *numWords) {
   }
 }
 
-char generateUniqueRandomLetter2(char usedLetters[]) {
+char GenerateUniqueRandomLetter2(char usedLetters[]) {
   int i;
   char letters[27] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   char letter;
@@ -277,8 +277,8 @@ void CreateBoard(char board[][MAX_BOARD_SIZE], int *row, int *col) {
   for (i = 0; i < *row; i++) {
     memset(usedLetters, 0, sizeof usedLetters); // clear usedLetters array
     for (j = 0; j < *col; j++) {
-      uniqueLetter = generateUniqueRandomLetter2(usedLetters);
-      // uniqueLetter = generateUniqueRandomLetter(usedLetters, j);
+      uniqueLetter = GenerateUniqueRandomLetter2(usedLetters);
+      // uniqueLetter = GenerateUniqueRandomLetter(usedLetters, j);
       usedLetters[j] = uniqueLetter;
       // push the letter to board if not yet used
       board[i][j] = uniqueLetter;
