@@ -141,7 +141,7 @@ void DisplayBoard(char board[][MAX_BOARD_SIZE], int row, int col) {
  * --> if not, then generate another question
  *  Returns 1 if the question trivia is answered correctly, otherwise 0
  * */
-int QuestionAnswerPhase(Words wordsDatabase, int *numWords, String20 usedWordTracker[], int *numUsedWords, char board[][MAX_BOARD_SIZE], int letterIndex) {
+int QuestionAnswerPhase(Words wordsDatabase, int *numWords, String20 usedWordTracker[], int *numUsedWords, char board[][MAX_BOARD_SIZE], int letterIndex, int currentRow) {
   int i, j, randWordIndex, randClueIndex, alreadyUsed;
   String20 userAnswerInput;
 
@@ -187,12 +187,12 @@ int QuestionAnswerPhase(Words wordsDatabase, int *numWords, String20 usedWordTra
 
     if (strcmp(userAnswerInput, wordsDatabase[randWordIndex].wordName) == 0) {
       // printf("after strcmp\n");
-      board[i][letterIndex] = '*'; // replace the letter with '*' if answered correctly
+      board[currentRow][letterIndex] = '*'; // replace the letter with '*' if answered correctly
       return 1;
     }
     else {
       // printf("after strcmp\n");
-      board[i][letterIndex] = '-';
+      board[currentRow][letterIndex] = '-';
       return 0;
     }
   }          
@@ -278,19 +278,19 @@ int isWin(char board[][MAX_BOARD_SIZE], int row, int col) {
   return 1;
 }
 
-// Determine if the game is over based on the contents in the 2D array of
-// characters. calls checkWinningConditions()
-// Returns 1 if can proceed to next row, otherwise 0
+/*
+ * Returns 1 if a row has at least one '*', meaning it can proceed to next row, otherwise 0
+ * */
 int CheckRowStatus(char currentRow[], int col) {
   // check if col == numOfWrong (which is '-');
-  int i, canProceed = 0;
+  int i;
   for (i = 0; i < col; i++) {
     if (currentRow[i] == '*') {
-      canProceed = 1;
+      return 1;
     }
   }
 
-  return canProceed;
+  return 0;
 }
 
 void GamePhase(Words *wordsDatabase, int *numWords) {
@@ -340,9 +340,10 @@ void GamePhase(Words *wordsDatabase, int *numWords) {
   /******PLAYING PHASE*******/
   // TODO: select letter from board, then ask question (calls questionPhase())
   char letterInput;
-  int letterIndex = -1, canProceedToNextRow = 0, status = 0;
+  int letterIndex = -1, canProceedToNextRow = 1, status = 0;
 
-  for (i = 0; i < row; i++) {
+  i = 0;
+  while (i < row && canProceedToNextRow == 1) {
     printf("\n---------------------------------------\n");
     DisplayBoard(board, row, col);
     canProceedToNextRow = 0;
@@ -353,11 +354,18 @@ void GamePhase(Words *wordsDatabase, int *numWords) {
         // reset userAnswerInput
         // memset(userAnswerInput, 0, sizeof *userAnswerInput);
 
+        printf("\n[0] to exit the game.\n");
         printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i + 1, i + 1);
         scanf(" %c", &letterInput);
+        printf("\n");
 
-          printf("\nInvalid input. Please try again.\n");
+        if (letterInput == '0') {
+          printf("Exiting game...\n");
+          return;
+        }
+
         while (letterInput == '*' || letterInput == '-') {
+          printf("\nInvalid input. Please try again.\n");
           printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i + 1, i + 1);
           scanf(" %c", &letterInput);
         }
@@ -381,10 +389,9 @@ void GamePhase(Words *wordsDatabase, int *numWords) {
 
         // if letter exists, then proceed with the question (call database for word)
         if (letterIndex != -1 && letterInput != '*' && letterInput != '-') {
-          status = QuestionAnswerPhase(*wordsDatabase, numWords, usedWordTracker, &numUsedWords, board, letterIndex);
+          status = QuestionAnswerPhase(*wordsDatabase, numWords, usedWordTracker, &numUsedWords, board, letterIndex, i);
         } // if letter exists
       
-        canProceedToNextRow = CheckRowStatus(board[i], col);
         if (status == 0) {
           // display new board with the updated row that has '-'
           DisplayBoard(board, row, col);
@@ -397,11 +404,24 @@ void GamePhase(Words *wordsDatabase, int *numWords) {
         }
       } // j col
 
+    canProceedToNextRow = CheckRowStatus(board[i], col);
+    if (canProceedToNextRow == 1) {
+      i++;
+    }
+    else {
+      canProceedToNextRow = 0; // exits loop
+    }
+
   } // i row
 
   /******CHECK GAME STATUS IF WIN OR LOSE*******/
   int winFlag;
-  isWin(board, row, col);
+  winFlag = isWin(board, row, col);
+  if (winFlag == 1) {
+    printf("\nYou WIN!\n");
+  } else {
+    printf("\nYou LOSE!\n");
+  }
 }
 
 /* #############################################
@@ -1222,6 +1242,8 @@ int main()
       exitFlag = 1;
       break;
     case 1:
+      memset(wordsDatabase, 0, sizeof *wordsDatabase);
+      numWords = 0;
       GamePhase(&wordsDatabase, &numWords);
       break;
     case 2:

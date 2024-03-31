@@ -24,7 +24,7 @@ int isUniqueLetter(char lettersContext[], int letterCountInRow);
 char generateUniqueRandomLetter(char usedLetters[], int size);
 int SearchLetter(char array[], int size, char key);
 void CreateBoard(char board[][MAX_BOARD_SIZE], int *row, int *col);
-int QuestionAnswerPhase(Words wordsDatabase, int *numWords, String20 usedWordTracker[], int *numUsedWords, char board[][MAX_BOARD_SIZE], int letterIndex);
+int QuestionAnswerPhase(Words wordsDatabase, int *numWords, String20 usedWordTracker[], int *numUsedWords, char board[][MAX_BOARD_SIZE], int letterIndex, int currentRow);
 int isWin(char board[][MAX_BOARD_SIZE], int row, int col);
 int CheckRowStatus(char currentRow[], int col);
 void GamePhase(Words *wordsDatabase, int *numWords);
