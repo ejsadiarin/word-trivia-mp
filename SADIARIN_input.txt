@@ -1,0 +1,150 @@
+Object: Apple
+Color: Red
+Taste: Sweet
+
+Object: Backpack
+Brand: Osprey
+Color: Green
+Capacity: 30 liters
+
+Object: Banana
+Color: Yellow
+Taste: Tropical
+
+Object: Bicycle
+Brand: Trek
+Color: Red and Black
+Type: Mountain Bike
+
+Object: Book
+Genre: Fiction
+Pages: 300
+Author: John Doe
+
+Object: Camera
+Brand: Canon
+Model: EOS Rebel
+Color: Black
+
+Object: Car
+Brand: Toyota
+Color: Blue
+Model: Camry
+Year: 2020
+
+Object: Cat
+Breed: Siamese
+Color: Cream and Brown
+Size: Small
+
+Object: Chair
+Type: Dining
+Color: Brown
+Material: Wood
+
+Object: Coffee
+Productivity Drink: for productivity boost
+
+Object: Desk
+Type: Standing
+Color: White
+Height: Adjustable
+
+Object: Dog
+Breed: Labrador Retriever
+Color: Golden
+Size: Large
+
+Object: Guitar
+Brand: Fender
+Color: Sunburst
+Type: Acoustic
+
+Object: Headphones
+Brand: Bose
+Type: Noise-Canceling
+Color: Silver
+
+Object: Jacket
+Brand: The North Face
+Color: Blue
+Material: Gore-Tex
+
+Object: Lamp
+Type: Desk
+Color: White
+Light Source: LED
+
+Object: Laptop
+Brand: Dell
+Color: Silver
+Operating System: Windows
+
+Object: Orange
+Color: Orange
+Taste: Citrus
+
+Object: Pear
+Color: Green
+Taste: Juicy
+
+Object: Pineapple
+Color: Yellow
+Taste: Sweet and Tangy
+
+Object: Plant
+Type: Succulent
+Color: Green
+Pot: Ceramic
+
+Object: Shoes
+Brand: Nike
+Color: White
+Size: 10
+
+Object: Smartphone
+Brand: Samsung
+Color: Gray
+Operating System: Android
+
+Object: Strawberry
+Color: Red
+Taste: Sweet and Tart
+
+Object: Sunglasses
+Brand: Ray-Ban
+Frame Color: Black
+Lens Color: Green
+
+Object: Table
+NEW: YES
+Color: Black
+Property: Yes
+Test: hehe one
+
+Object: Television
+Brand: Samsung
+Size: 55 inches
+Resolution: 4K
+
+Object: Wallet
+Material: Leather
+Color: Brown
+Type: Bifold
+
+Object: Watch
+Brand: Rolex
+Model: Submariner
+Material: Stainless Steel
+
+Object: asdgve
+vfdb: dsfbdf
+dsbdsfb: weg
+
+Object: ninth
+hehe: hihi
+asdf: vare
+
+Object: table
+new: newse
+

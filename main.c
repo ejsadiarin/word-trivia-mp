@@ -536,10 +536,17 @@ AddCluesAction(Words wordsDatabase, int wordIndex)
       // add clues to the word
       printf("\n");
       printf("Enter relation: ");
-      scanf("%30s", relation);
+      scanf(" %[^\n]s", relation);
       printf("Enter relation value: ");
-      scanf("%30s", relationValue);
+      scanf(" %[^\n]s", relationValue);
       printf("\n");
+
+      // check if relation and relation value is 30 characters long
+      if (strlen(relation) > 30 || strlen(relationValue) > 30)
+      {
+        printf("Relation and Relation Value must be 30 characters or less. Exiting...\n");
+        return;
+      }
 
       strcpy(wordsDatabase[wordIndex].clues[wordsDatabase[wordIndex].numOfClues].relation, relation);
       strcpy(wordsDatabase[wordIndex].clues[wordsDatabase[wordIndex].numOfClues].relationValue, relationValue);
@@ -747,7 +754,14 @@ AddWord(Words wordsDatabase, int *numWords)
   }
 
   printf("\nEnter word to add: ");
-  scanf("%s", input);
+  scanf(" %[^\n]s", input);
+
+  // check if input is 20 characters long
+  if (strlen(input) > 20)
+  {
+    printf("Word must be 20 characters or less. Exiting...\n");
+    return;
+  }
 
   // if word already exists in the database, exit
   index = SearchWordIndex(wordsDatabase, numWords, input);
@@ -1113,6 +1127,7 @@ Import(Words wordsDatabase, int *numWords)
       }
     }
   }
+  printf("Import successful.\n");
 }
 
 /* Export exports the data entries to a text file. It allows the user to save the data entries to a file.
@@ -1157,6 +1172,7 @@ Export(Words wordsDatabase, int *numWords)
   }
 
   fclose(file);
+  printf("Export successful.\n");
 }
 
 /* AdminMenu is the main interface for the admin phase.
