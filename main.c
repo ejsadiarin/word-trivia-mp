@@ -18,10 +18,17 @@
  * #############################################
  */
 
-/*
-* Returns 1 if all letters in the array are unique, otherwise 0
+/* SearchLetter searches for the key (letter) in the specified row
+ *
+ * @param row - array of characters representing a row in the board
+ * @param size - size of the row
+ * @param key - the letter to search in the row
+ * @return the index of the letter in the row if found, otherwise -1
+ * Pre-condition: row is not null, size > 0, key is a character
  * */
-int SearchLetter(char row[], int size, char key) {
+int 
+SearchLetter(char row[], int size, char key)
+{
   int i;
   for (i = 0; i < size; i++) {
     if (row[i] == key) {
@@ -31,7 +38,15 @@ int SearchLetter(char row[], int size, char key) {
   return -1;
 }
 
-char generateUniqueRandomLetter(char usedLetters[]) {
+/* generateUniqueRandomLetter generates a random letter that has not yet been used or is unique
+ *
+ * @param usedLetters - array of characters, representing the used letters
+ * @return a unique random letter that is not inside the parameter usedLetters
+ * Pre-condition: usedLetters is not null, rand() is seeded
+ * */
+char 
+generateUniqueRandomLetter(char usedLetters[])
+{
   int i;
   char letters[27] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   char letter;
@@ -53,11 +68,15 @@ char generateUniqueRandomLetter(char usedLetters[]) {
   return letter;
 }
 
-/*
- * Populates the board based on the Words in the file.
- * --> generate random letters but unique for each row
+/* CreateBoard populates the board based on specified dimensions
+ * @param board - 2D array of characters representing the board
+ * @param *row  - an int pointer to the number of rows of the board
+ * @param *col - an int pointer to the number of columns of the board
+ * Pre-condition: board is not null, row > 0, col > 0, srand() seeds the random number generator
  * */
-void CreateBoard(char board[][MAX_BOARD_SIZE], int *row, int *col) {
+void 
+CreateBoard(char board[][MAX_BOARD_SIZE], int *row, int *col)
+{
   int i, j;
   srand(time(NULL));
   char usedLetters[100];
@@ -75,7 +94,15 @@ void CreateBoard(char board[][MAX_BOARD_SIZE], int *row, int *col) {
   }
 }
 
-void DisplayBoard(char board[][MAX_BOARD_SIZE], int row, int col) {
+/* DisplayBoard displays the board
+ * @param board - 2D array of characters representing the board
+ * @param row - number of rows of the board
+ * @param col - number of columns of the board
+ * Pre-condition: board is not null, row > 0, col > 0
+ * */
+void 
+DisplayBoard(char board[][MAX_BOARD_SIZE], int row, int col)
+{
   int i, j;
   printf("\n");
   for (i = 0; i < row; i++) {
@@ -86,10 +113,22 @@ void DisplayBoard(char board[][MAX_BOARD_SIZE], int row, int col) {
   }
 }
 
-/*
- *  Returns 1 if the question trivia is answered correctly, otherwise 0
+/* QuestionAnswerPhase asks the question trivia based on the random word selected 
+ * and modifies the board based on the correctness of the user's answer
+ *
+ * @param wordsDatabase - an array that serves as the main database of words
+ * @param *numWords - an int pointer to the number of words in the database
+ * @param usedWordTracker - an array of strings that tracks the used words in the game
+ * @param *numUsedWords - an int pointer to the number of used words in the game
+ * @param board - 2D array of characters representing the board
+ * @param letterIndex - the index of the letter selected in the currentRow
+ * @param currentRow - represents the current row of the board
+ * @return 1 if the question trivia is answered correctly, otherwise 0. If user wants to exit the game, return -1
+ * Pre-condition: wordsDatabase is not null, numWords > 0, usedWordTracker is not null, numUsedWords > 0, board is not null, letterIndex >= 0, currentRow >= 0, rand() is seeded
  * */
-int QuestionAnswerPhase(Words wordsDatabase, int *numWords, String20 usedWordTracker[], int *numUsedWords, char board[][MAX_BOARD_SIZE], int letterIndex, int currentRow) {
+int 
+QuestionAnswerPhase(Words wordsDatabase, int *numWords, String20 usedWordTracker[], int *numUsedWords, char board[][MAX_BOARD_SIZE], int letterIndex, int currentRow)
+{
   int i, j, randWordIndex, randClueIndex, alreadyUsed;
   String20 userAnswerInput;
 
@@ -100,7 +139,6 @@ int QuestionAnswerPhase(Words wordsDatabase, int *numWords, String20 usedWordTra
     for (i = 0; i < *numUsedWords; i++) {
       if (strcmp(wordsDatabase[randWordIndex].wordName, usedWordTracker[i]) == 0) {
         alreadyUsed = 1;
-        // break;
       }
     }
 
@@ -125,39 +163,35 @@ int QuestionAnswerPhase(Words wordsDatabase, int *numWords, String20 usedWordTra
     scanf("%20s", userAnswerInput);
 
     if (strcmp(userAnswerInput, "0") == 0) {
-      printf("Exiting game...\n");
-      return 0;
+      return -1;
     }
 
-    // printf("before strcmp\n");
-    // printf("randWordIndex: %d\n", randWordIndex);
-    // printf("userAnswerInput: %s\n", userAnswerInput);
-
     if (strcmp(userAnswerInput, wordsDatabase[randWordIndex].wordName) == 0) {
-      // printf("after strcmp\n");
       board[currentRow][letterIndex] = '*'; // replace the letter with '*' if answered correctly
       return 1;
     }
     else {
-      // printf("after strcmp\n");
       board[currentRow][letterIndex] = '-';
       return 0;
     }
   }          
 
-
-
   return -1;
 }
 
-/*
- * Determine if the player wins based on contents in the 2D array of characters (2D strings).
- * if player answered atleast 1 question for each row in 2D array of
- * characters loop through each row and check if there is at least one '*'
- * (correct answer), if not, return 0 (not a win)
+/* isWin determines if the player wins based on contents in the 2D array of characters (2D strings).
+ * if player answered atleast 1 question for each row in 2D array of characters loop through each row 
+ * and check if there is at least one '*' (correct answer), if not, return 0 (not a win)
  *
+ * @param board - 2D array of characters representing the board
+ * @param row - number of rows of the board
+ * @param col - number of columns of the board
+ * @return 1 if the player wins, otherwise 0
+ * Pre-condition: board is not null, row > 0, col > 0
  * */
-int isWin(char board[][MAX_BOARD_SIZE], int row, int col) {
+int 
+isWin(char board[][MAX_BOARD_SIZE], int row, int col)
+{
   // given the 2d array of characters (array of strings), search for *, if found
   int i, j, winFlag;
   for (i = 0; i < row; i++) {
@@ -169,23 +203,23 @@ int isWin(char board[][MAX_BOARD_SIZE], int row, int col) {
     }
 
     if (!winFlag) {
-      // printf("You LOSE!\n");
       return 0;
     }
   }
 
-  // starCount should be at least equal to row (starCount >= row)
-
-
-  // printf("You WIN!\n");
   return 1;
 }
 
-/*
- * Returns 1 if a row has at least one '*', meaning it can proceed to next row, otherwise 0
+/* CheckRowStatus returns 1 if a row has at least one '*', meaning it can proceed to next row, otherwise 0
+ *
+ * @param currentRow - array of characters representing the current row
+ * @param col - number of columns of the board, which represents the number of letters in the row
+ * @return 1 if the currentRow array has at least one '*', otherwise 0
+ * Pre-condition: currentRow is not null, col > 0
  * */
-int CheckRowStatus(char currentRow[], int col) {
-  // check if col == numOfWrong (which is '-');
+int 
+CheckRowStatus(char currentRow[], int col)
+{
   int i;
   for (i = 0; i < col; i++) {
     if (currentRow[i] == '*') {
@@ -196,11 +230,20 @@ int CheckRowStatus(char currentRow[], int col) {
   return 0;
 }
 
-void GamePhase(Words *wordsDatabase, int *numWords) {
-  int i = 0, j = 0;
-  int row = 0, col = 0;
+/* GamePhase is the main function that handles the game phase of the program
+ *
+ * @param *wordsDatabase - the array that serves as the main database of words
+ * @param *numWords - an int pointer to the number of words in the database
+ * Pre-condition: no entries in wordsDatabase before starting the game since the Import will populate the database, letterInput is in uppercase, appropriate data types of inputs are used/given
+ * */
+void 
+GamePhase(Words *wordsDatabase, int *numWords)
+{
+  int i = 0, j = 0, row = 0, col = 0, numUsedWords = 0;
+  int letterIndex = -1, canProceedToNextRow = 1, status = 0, winFlag, exitFlag = 0;
   String20 usedWordTracker[MAX_WORDS];  // to be used in the game phase (to check if word has already been used in the game)
-  int numUsedWords = 0;
+  char board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
+  char letterInput, continueGame;
 
   // initialize usedWordTracker array
   for (int n = 0; n < MAX_WORDS; n++) {
@@ -231,31 +274,23 @@ void GamePhase(Words *wordsDatabase, int *numWords) {
   if ((row * col) > *numWords || (row * col) <= 0) {
     printf("\nInsufficient number of words to create the board. Make sure the imported file has enough words to create the board.\n");
     // clear the database (covers if board creation fails because of insufficient words)
-    memset(wordsDatabase, 0, sizeof *wordsDatabase);
+    memset(*wordsDatabase, 0, sizeof *wordsDatabase);
     *numWords = 0;
     return;
   }
 
   // only create board if all good
-  char board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
   CreateBoard(board, &row, &col);
 
   /******PLAYING PHASE*******/
-  // TODO: select letter from board, then ask question (calls questionPhase())
-  char letterInput;
-  int letterIndex = -1, canProceedToNextRow = 1, status = 0;
-
   i = 0;
-  while (i < row && canProceedToNextRow == 1) {
+  while (i < row && canProceedToNextRow == 1 && exitFlag == 0) {
     printf("\n---------------------------------------\n");
     DisplayBoard(board, row, col);
     canProceedToNextRow = 0;
     j = 0;
     status = 0;
-      while (j < col && status == 0) {
-
-        // reset userAnswerInput
-        // memset(userAnswerInput, 0, sizeof *userAnswerInput);
+      while (j < col && status == 0 && exitFlag == 0) {
 
         printf("\n[0] to exit the game.\n");
         printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i + 1, i + 1);
@@ -264,47 +299,58 @@ void GamePhase(Words *wordsDatabase, int *numWords) {
 
         if (letterInput == '0') {
           printf("Exiting game...\n");
-          return;
-        }
+          exitFlag = 1;
+          canProceedToNextRow = 0;
+        } 
+        else {
+          while (letterInput == '*' || letterInput == '-') {
+            printf("\nInvalid input. Please try again.\n");
+            printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i + 1, i + 1);
+            scanf(" %c", &letterInput);
+          }
 
-        while (letterInput == '*' || letterInput == '-') {
-          printf("\nInvalid input. Please try again.\n");
-          printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i + 1, i + 1);
-          scanf(" %c", &letterInput);
-        }
-
-        // convert letterInput to uppercase
-        if (letterInput >= 'a' && letterInput <= 'z')
-          letterInput = letterInput - 32;
-
-        letterIndex = SearchLetter(board[i], col, letterInput);
-
-        // if letter does not exist
-        while (letterIndex == -1) {
-          printf("Letter does not exist in the current row. Please try again.\n");
-          printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i + 1, i + 1);
-          scanf(" %c", &letterInput);
-          // convert letterInput to uppercase
-          if (letterInput >= 'a' && letterInput <= 'z')
-            letterInput = letterInput - 32;
           letterIndex = SearchLetter(board[i], col, letterInput);
-        }
 
-        // if letter exists, then proceed with the question (call database for word)
-        if (letterIndex != -1 && letterInput != '*' && letterInput != '-') {
-          status = QuestionAnswerPhase(*wordsDatabase, numWords, usedWordTracker, &numUsedWords, board, letterIndex, i);
-        } // if letter exists
-      
-        if (status == 0) {
-          // display new board with the updated row that has '-'
-          DisplayBoard(board, row, col);
-          printf("\n");
-          printf("Wrong answer! Choose another letter in the current row...\n");
-          j++;
-        }  
-        if (status == 1) {
-          printf("Correct answer! Proceeding to the next row...\n");
-        }
+          // if letter does not exist
+          while (letterIndex == -1) {
+            printf("Letter does not exist in the current row. Please try again.\n");
+            printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i + 1, i + 1);
+            scanf(" %c", &letterInput);
+            if (letterInput >= 'a' && letterInput <= 'z')
+              printf("Letter must be in uppercase.\n");
+            letterIndex = SearchLetter(board[i], col, letterInput);
+          }
+
+          // if letter exists, then proceed with the question (call database for word)
+          if (letterIndex != -1 && letterInput != '*' && letterInput != '-') {
+            status = QuestionAnswerPhase(*wordsDatabase, numWords, usedWordTracker, &numUsedWords, board, letterIndex, i);
+          } // if letter exists
+
+          if (status == -1) {
+            // clear the database
+            printf("Exiting game...\n");
+            exitFlag = 1;
+            canProceedToNextRow = 0;
+          }
+          else if (status == 0) {
+            // display new board with the updated row that has '-'
+            DisplayBoard(board, row, col);
+            printf("\n");
+            printf("Wrong answer!\n");
+            j++;
+            if (j != col) {
+              printf("Choose another letter in the current row...\n");
+            }
+          }  
+          else if (status == 1) {
+            printf("\n");
+            printf("Correct answer!\n");
+            if (i != row - 1) {
+              printf("Proceeding to the next row...\n");
+            }
+          }
+        } // exitFlag == 0
+
       } // j col
 
     canProceedToNextRow = CheckRowStatus(board[i], col);
@@ -318,12 +364,34 @@ void GamePhase(Words *wordsDatabase, int *numWords) {
   } // i row
 
   /******CHECK GAME STATUS IF WIN OR LOSE*******/
-  int winFlag;
   winFlag = isWin(board, row, col);
   if (winFlag == 1) {
     printf("\nYou WIN!\n");
   } else {
     printf("\nYou LOSE!\n");
+  }
+
+  /******POST GAME*******/
+  printf("Do you want to play again? [y/n]: ");
+  scanf(" %c", &continueGame);
+
+  while (continueGame != 'y' && continueGame != 'Y' && continueGame != 'n' && continueGame != 'N') {
+    printf("Invalid input. Please try again.\n");
+    printf("Do you want to play again? [y/n]: ");
+    scanf(" %c", &continueGame);
+  }
+
+  if (continueGame == 'y' || continueGame == 'Y') {
+    // clear the database before starting the game again
+    memset(*wordsDatabase, 0, sizeof *wordsDatabase);
+    *numWords = 0;
+    GamePhase(wordsDatabase, numWords);
+  }
+  else if (continueGame == 'n' || continueGame == 'N') {
+    // clear the database
+    memset(*wordsDatabase, 0, sizeof *wordsDatabase);
+    *numWords = 0;
+    return;
   }
 }
 
@@ -332,7 +400,14 @@ void GamePhase(Words *wordsDatabase, int *numWords) {
  * #############################################
  */
 
-void SortEntriesAlphabetically(Words wordsDatabase, int *numWords)
+/* SortEntriesAlphabetically sorts the words in the database alphabetically in ascending order
+ *
+ * @param wordsDatabase - an array that serves as the main database of words
+ * @param *numWords - an int pointer to the number of words in the database
+ * Pre-condition: wordsDatabase is not null, numWords > 0
+ * */
+void 
+SortEntriesAlphabetically(Words wordsDatabase, int *numWords)
 {
   int i, j;
   WordType temp;
@@ -350,7 +425,14 @@ void SortEntriesAlphabetically(Words wordsDatabase, int *numWords)
   }
 }
 
-void DisplayAllWords(Words wordsDatabase, int *numWords)
+/* DisplayAllWords displays all the words in the database
+ *
+ * @param wordsDatabase - an array that serves as the main database of words
+ * @param *numWords - an int pointer to the number of words in the database
+ * Pre-condition: wordsDatabase is not null, numWords > 0
+ * */
+void 
+DisplayAllWords(Words wordsDatabase, int *numWords)
 {
   int i;
 
@@ -368,11 +450,16 @@ void DisplayAllWords(Words wordsDatabase, int *numWords)
   }
 }
 
-/*
+/* SearchWordIndex returns the index of the word in the database, otherwise -1 (-1 means unique, does not yet exist)
  *
- * Returns the index of the word in the database, otherwise -1 (-1 means unique, does not yet exist)
+ * @param wordsDatabase - an array that serves as the main database of words
+ * @param *numWords - an int pointer to the number of words in the database
+ * @param key - the word to search in the database
+ * @return the index of the word in the database if found, otherwise -1
+ * Pre-condition: wordsDatabase is not null, numWords > 0, key is a string
  * */
-int SearchWordIndex(Words wordsDatabase, int *numWords, String20 key)
+int 
+SearchWordIndex(Words wordsDatabase, int *numWords, String20 key)
 {
   int i;
   for (i = 0; i < *numWords; i++)
@@ -385,10 +472,16 @@ int SearchWordIndex(Words wordsDatabase, int *numWords, String20 key)
   return -1;
 }
 
-/*
- * Assumes that word already exists in the database.
+/* OverwriteWord overwrites the original word with the new word if the new word is unique, retains the clues of the original word
+ *
+ * @param wordsDatabase - an array that serves as the main database of words
+ * @param *numWords - an int pointer to the number of words in the database
+ * @param origWord - the original word to be overwritten
+ * @param newWord - the new word to overwrite the original word
+ * Pre-condition: wordsDatabase is not null, numWords > 0, origWord is a string, newWord is a string, assumes that word already exists in the database.
  * */
-void OverwriteWord(Words wordsDatabase, int *numWords, String20 origWord, String20 newWord)
+void 
+OverwriteWord(Words wordsDatabase, int *numWords, String20 origWord, String20 newWord)
 {
   int newWordIndex;
 
@@ -405,10 +498,14 @@ void OverwriteWord(Words wordsDatabase, int *numWords, String20 origWord, String
   }
 }
 
-/*
- * Assume that the word already exists in the database.
+/* AddCluesAction adds clues to the word in the database
+ *
+ * @param wordsDatabase - an array that serves as the main database of words
+ * @param wordIndex - the index of the word in the database
+ * Pre-condition: wordsDatabase is not null, wordIndex >= 0
  * */
-void AddCluesAction(Words wordsDatabase, int wordIndex)
+void 
+AddCluesAction(Words wordsDatabase, int wordIndex)
 {
   int i, j, willRepeat = 0;
   char yn;
@@ -465,7 +562,14 @@ void AddCluesAction(Words wordsDatabase, int wordIndex)
   }
 }
 
-void AddCluesUI(Words wordsDatabase, int *numWords)
+/* AddCluesUI is the "UI" function that handles the addition of clues to a word in the database based on the user input
+ *
+ * @param wordsDatabase - an array that serves as the main database of words
+ * @param *numWords - an int pointer to the number of words in the database
+ * Pre-condition: wordsDatabase is not null, numWords > 0
+ * */
+void 
+AddCluesUI(Words wordsDatabase, int *numWords)
 {
   int wordIndex;
   String20 input;
@@ -494,20 +598,14 @@ void AddCluesUI(Words wordsDatabase, int *numWords)
   }
 }
 
-/*
- * Show a listing of all words before asking your user to type the word whose clues he wants to view.
- * The list of relations and relation values of the chosen word should be shown. Make sure
- * that garbage values are not displayed. Using the example table above, this is view:
- *     Object: Table
- *       Kind of: Furniture
- *       Part: Top
- *       Part: Leg
- *       Height: Meter
- *       Make: Wood, Plastic
- *       Color: Brown, White, Black
+/* ViewClues displays the clues of the word in the database
  *
+ * @param wordsDatabase - an array that serves as the main database of words
+ * @param *numWords - an int pointer to the number of words in the database
+ * Pre-condition: wordsDatabase is not null, numWords > 0
  * */
-void ViewClues(Words wordsDatabase, int *numWords)
+void 
+ViewClues(Words wordsDatabase, int *numWords)
 {
   int i, index;
   String20 word;
@@ -551,13 +649,15 @@ void ViewClues(Words wordsDatabase, int *numWords)
   }
 }
 
-/*
-    Provide a listing of all words (in alphabetical order). The list of trivia of each word should also be
-    shown. Display each word one at a time until all entries have been displayed. Provide a way for
-    the user to view the next or previous word or exit the view (i.e., press ‘N’ for next, ‘P’ for previous,
-    ‘X’ to end the display and go back to the menu).
+/* ViewWords displays the words in the database with its corresponding clues in alphabetical order.
+ * It also allows the user to interactively navigate through the entries
+ *
+ * @param wordsDatabase - an array that serves as the main database of words
+ * @param *numWords - an int pointer to the number of words in the database
+ * Pre-condition: wordsDatabase is not null, numWords > 0, SortEntriesAlphabetically() sorts alphabetically
 */
-void ViewWords(Words wordsDatabase, int *numWords)
+void 
+ViewWords(Words wordsDatabase, int *numWords)
 {
   int i = 0, j, willRepeat = 1;
   char input;
@@ -592,14 +692,14 @@ void ViewWords(Words wordsDatabase, int *numWords)
       if (i < *numWords - 1)
         i++;
       else
-        printf("End of the list.\n");
+        printf("\n-------End of the list.-------\n");
     }
     else if ((input == 'P' || input == 'p'))
     {
       if (i > 0)
         i--;
       else
-        printf("Start of the list.\n");
+        printf("\n-------Start of the list.-------\n");
     }
     else if (input == 'X' || input == 'x')
     {
@@ -607,14 +707,19 @@ void ViewWords(Words wordsDatabase, int *numWords)
     }
     else
     {
-      printf("Invalid input. Please try again.\n");
+      printf("\nInvalid input. Please try again.\n");
     }
   } while (i < *numWords && willRepeat == 1);
 }
 
-/*
+/* AddWord adds a entry (word and clues) to the database. It also checks if the word already exists in the database.
+ *
+ * @param wordsDatabase - an array that serves as the main database of words
+ * @param *numWords - an int pointer to the number of words in the database
+ * Pre-condition: wordsDatabase is not null, numWords > 0, MAX_WORDS is the maximum number of words that can be added, AddCluesAction() handles the addition of clues to the word
  * */
-void AddWord(Words wordsDatabase, int *numWords)
+void 
+AddWord(Words wordsDatabase, int *numWords)
 {
   String20 input;
   int index;
@@ -646,7 +751,14 @@ void AddWord(Words wordsDatabase, int *numWords)
   (*numWords)++;
 }
 
-void ModifyEntry(Words wordsDatabase, int *numWords)
+/* ModifyEntry modifies the word and/or clues in the database. It allows the user to modify the word and/or clues interactively.
+ *
+ * @param wordsDatabase - an array that serves as the main database of words
+ * @param *numWords - an int pointer to the number of words in the database
+ * Pre-condition: wordsDatabase is not null, numWords > 0, OverwriteWord() overwrites the original word with the new word if the new word is unique
+ * */
+void 
+ModifyEntry(Words wordsDatabase, int *numWords)
 {
   int i, j, origIndex, newWordIndex, choice = -1, newWordChoice, clueChoice;
   String20 input, newWord;
@@ -733,7 +845,14 @@ void ModifyEntry(Words wordsDatabase, int *numWords)
   }
 }
 
-void DeleteWord(Words wordsDatabase, int *numWords)
+/* DeleteWord deletes a word in the database, including its corresponding clues.
+ *
+ * @param wordsDatabase - an array that serves as the main database of words
+ * @param *numWords - an int pointer to the number of words in the database
+ * Pre-condition: wordsDatabase is not null, numWords > 0
+ * */
+void 
+DeleteWord(Words wordsDatabase, int *numWords)
 {
   int i, index;
   String20 input;
@@ -764,13 +883,20 @@ void DeleteWord(Words wordsDatabase, int *numWords)
   printf("Word successfully deleted.\n");
 }
 
-void DeleteClue(Words wordsDatabase, int *numWords)
+/* DeleteClue deletes a clue in the word in the database interactively by selecting the number representing the specific
+ * clues (relation and relation value).
+ *
+ * @param wordsDatabase - an array that serves as the main database of words
+ * @param *numWords - an int pointer to the number of words in the database
+ * Pre-condition: wordsDatabase is not null, numWords > 0
+ * */
+void 
+DeleteClue(Words wordsDatabase, int *numWords)
 {
   int n, i, j, wordToDeleteIndex, indexClue, clueChoice;
   String20 input;
   String30 relation;
 
-  // SortEntriesAlphabetically(wordsDatabase, numWords);
   DisplayAllWords(wordsDatabase, numWords);
 
   printf("\nEnter the word you want to delete a clue from: ");
@@ -811,9 +937,16 @@ void DeleteClue(Words wordsDatabase, int *numWords)
 
 }
 
-/*
+/* Import imports a file that contains the words and clues to the database.
+ * It handles the population of the main database with the words and clues from the given text file.
+ *
+ * @param wordsDatabase - an array that serves as the main database of words
+ * @param *numWords - an int pointer to the number of words in the database
+ * Pre-condition: the FILE to import is a text file, MAX_WORDS is the maximum number of words that can be added, MAX_CLUES is the maximum number of clues that can be added to a word
  */
-void Import(Words wordsDatabase, int *numWords) {
+void 
+Import(Words wordsDatabase, int *numWords)
+{
   FILE *file;
   String30 filename;
   char line[100];
@@ -847,7 +980,7 @@ void Import(Words wordsDatabase, int *numWords) {
   // STORING PHASE
   while (fgets(line, sizeof(line), file) != NULL) {
 
-    // handle empty line (<nextline>), indicates that next line will be a word
+    // handle empty line (<nextline> or \n), indicates that next line will be a word
     if (line[0] == '\0' || line[0] == '\n') {
       // reset
       i++;
@@ -970,7 +1103,16 @@ void Import(Words wordsDatabase, int *numWords) {
   }
 }
 
-void Export(Words wordsDatabase, int *numWords) {
+/* Export exports the data entries to a text file. It allows the user to save the data entries to a file.
+ * The data entries are also sorted alphabetically before exporting.
+ *
+ * @param wordsDatabase - an array that serves as the main database of words
+ * @param *numWords - an int pointer to the number of words in the database
+ * Pre-condition: the FILE specified where the data will be saved is a text file, wordsDatabase is not null, numWords > 0, SortEntriesAlphabetically() sorts alphabetically
+ * */
+void 
+Export(Words wordsDatabase, int *numWords)
+{
   int i, j;
   FILE *file;
   String30 filename;
@@ -1005,8 +1147,14 @@ void Export(Words wordsDatabase, int *numWords) {
   fclose(file);
 }
 
-// Menu for the Admin Phase
-void AdminMenu(Words *wordsDatabase, int *numWords)
+/* AdminMenu is the main interface for the admin phase.
+ *
+ * @param wordsDatabase - an array that serves as the main database of words
+ * @param *numWords - an int pointer to the number of words in the database
+ * Pre-condition: the input is an integer from 0 to 9 only
+ * */
+void 
+AdminMenu(Words *wordsDatabase, int *numWords)
 {
   int input, i, j, exitFlagToMainMenu = 0;
   while (!exitFlagToMainMenu)
@@ -1037,7 +1185,7 @@ void AdminMenu(Words *wordsDatabase, int *numWords)
     switch (input)
     {
     case 0:
-      // TODO: erase the database, since export is the only way to save
+      // erase the database, since export is the only way to save
       memset(*wordsDatabase, 0, sizeof *wordsDatabase);
       *numWords = 0;
       exitFlagToMainMenu = 1;
@@ -1075,7 +1223,8 @@ void AdminMenu(Words *wordsDatabase, int *numWords)
   }
 }
 
-int main()
+int 
+main()
 {
   int input, exitFlag = 0;
   int numWords = 0;
@@ -1103,9 +1252,6 @@ int main()
       AdminMenu(&wordsDatabase, &numWords);
       break;
     default:
-      // handle character input?
-      // if (expression) {
-      // }
       printf("Invalid input. Please try again.\n");
       break;
     }
