@@ -129,7 +129,7 @@ DisplayBoard(char board[][MAX_BOARD_SIZE], int row, int col)
 int 
 QuestionAnswerPhase(Words wordsDatabase, int *numWords, String20 usedWordTracker[], int *numUsedWords, char board[][MAX_BOARD_SIZE], int letterIndex, int currentRow)
 {
-  int i, j, randWordIndex, randClueIndex, alreadyUsed;
+  int i, randWordIndex, randClueIndex, alreadyUsed;
   String20 userAnswerInput;
 
   // loop until random word is unique or not already used (not included in usedWordTracker)
@@ -507,7 +507,7 @@ OverwriteWord(Words wordsDatabase, int *numWords, String20 origWord, String20 ne
 void 
 AddCluesAction(Words wordsDatabase, int wordIndex)
 {
-  int i, j, willRepeat = 0;
+  int willRepeat = 0;
   char yn;
   String30 relation, relationValue;
 
@@ -760,7 +760,7 @@ AddWord(Words wordsDatabase, int *numWords)
 void 
 ModifyEntry(Words wordsDatabase, int *numWords)
 {
-  int i, j, origIndex, newWordIndex, choice = -1, newWordChoice, clueChoice;
+  int i, j, origIndex, choice = -1, clueChoice;
   String20 input, newWord;
   String30 newClue, newClueValue;
 
@@ -893,9 +893,8 @@ DeleteWord(Words wordsDatabase, int *numWords)
 void 
 DeleteClue(Words wordsDatabase, int *numWords)
 {
-  int n, i, j, wordToDeleteIndex, indexClue, clueChoice;
+  int n, i, wordToDeleteIndex, clueChoice;
   String20 input;
-  String30 relation;
 
   DisplayAllWords(wordsDatabase, numWords);
 
@@ -1156,7 +1155,7 @@ Export(Words wordsDatabase, int *numWords)
 void 
 AdminMenu(Words *wordsDatabase, int *numWords)
 {
-  int input, i, j, exitFlagToMainMenu = 0;
+  int input, exitFlagToMainMenu = 0;
   while (!exitFlagToMainMenu)
   {
     printf("\n--------------Admin Menu--------------\n");
