@@ -104,6 +104,7 @@ void
 DisplayBoard(char board[][MAX_BOARD_SIZE], int row, int col)
 {
   int i, j;
+  printf("\n---------------------------------------\n");
   printf("\n");
   for (i = 0; i < row; i++) {
     for (j = 0; j < col; j++) {
@@ -157,9 +158,8 @@ QuestionAnswerPhase(Words wordsDatabase, int *numWords, String20 usedWordTracker
     printf("\n");
     printf("TRIVIA: %s\n", wordsDatabase[randWordIndex].clues[randClueIndex].relation);
     printf("--> %s\n", wordsDatabase[randWordIndex].clues[randClueIndex].relationValue);
-    printf("CORRECT ANSWER FOR DEBUGGING: %s\n", wordsDatabase[randWordIndex].wordName);
 
-    printf("Enter your answer [enter 0 to exit game (auto lose)]: ");
+    printf("\nEnter your answer [enter 0 to exit game (auto lose)]: ");
     scanf("%20s", userAnswerInput);
 
     if (strcmp(userAnswerInput, "0") == 0) {
@@ -251,6 +251,7 @@ GamePhase(Words *wordsDatabase, int *numWords)
   }
 
   /******INITIALIZE*******/
+  printf("\n---------------Game ON!-------------------\n");
 
   // ask user for dimensions of the board
   printf("\nEnter row of the board: ");
@@ -285,7 +286,6 @@ GamePhase(Words *wordsDatabase, int *numWords)
   /******PLAYING PHASE*******/
   i = 0;
   while (i < row && canProceedToNextRow == 1 && exitFlag == 0) {
-    printf("\n---------------------------------------\n");
     DisplayBoard(board, row, col);
     canProceedToNextRow = 0;
     j = 0;
@@ -312,13 +312,24 @@ GamePhase(Words *wordsDatabase, int *numWords)
           letterIndex = SearchLetter(board[i], col, letterInput);
 
           // if letter does not exist
-          while (letterIndex == -1) {
+          while (letterIndex == -1 && exitFlag == 0) {
             printf("Letter does not exist in the current row. Please try again.\n");
             printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i + 1, i + 1);
             scanf(" %c", &letterInput);
-            if (letterInput >= 'a' && letterInput <= 'z')
-              printf("Letter must be in uppercase.\n");
-            letterIndex = SearchLetter(board[i], col, letterInput);
+            if (letterInput == '0') {
+              exitFlag = 1;
+              canProceedToNextRow = 0;
+            } 
+            else {
+              while (letterInput == '*' || letterInput == '-') {
+                printf("\nInvalid input. Please try again.\n");
+                printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i + 1, i + 1);
+                scanf(" %c", &letterInput);
+              }
+              if (letterInput >= 'a' && letterInput <= 'z')
+                printf("Letter must be in uppercase.\n");
+              letterIndex = SearchLetter(board[i], col, letterInput);
+            } 
           }
 
           // if letter exists, then proceed with the question (call database for word)
@@ -326,7 +337,7 @@ GamePhase(Words *wordsDatabase, int *numWords)
             status = QuestionAnswerPhase(*wordsDatabase, numWords, usedWordTracker, &numUsedWords, board, letterIndex, i);
           } // if letter exists
 
-          if (status == -1) {
+          if (status == -1 || letterInput == '0') {
             // clear the database
             printf("Exiting game...\n");
             exitFlag = 1;
@@ -383,12 +394,14 @@ GamePhase(Words *wordsDatabase, int *numWords)
 
   if (continueGame == 'y' || continueGame == 'Y') {
     // clear the database before starting the game again
+    printf("\nClearing the database...\n");
     memset(*wordsDatabase, 0, sizeof *wordsDatabase);
     *numWords = 0;
     GamePhase(wordsDatabase, numWords);
   }
   else if (continueGame == 'n' || continueGame == 'N') {
     // clear the database
+    printf("\nClearing the database...\n");
     memset(*wordsDatabase, 0, sizeof *wordsDatabase);
     *numWords = 0;
     return;
