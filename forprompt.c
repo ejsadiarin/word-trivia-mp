@@ -1,17 +1,57 @@
-/*********************************************************************************************************
- This is to certify that this project is my own work, based on my personal
- efforts in studying and applying the concepts learned. I have constructed the
- functions and their respective algorithms and corresponding code by myself. The
- program was run, tested, and debugged by my own efforts. I further certify that
- I have not copied in part or whole or otherwise plagiarized the work of other
- students and/or persons.               Edwin M. Sadiarin Jr., DLSU ID#12323004
- *********************************************************************************************************/
-
-#include "SADIARIN_wordTrivia.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+
+#define MAX_BOARD_SIZE 15
+#define MIN_BOARD_SIZE 1
+#define MAX_WORDS 150
+#define MAX_CLUES 10
+
+typedef char String20[21]; // data type of the answers
+typedef char String30[31];
+
+typedef struct {
+  String30 relation;
+  String30 relationValue;
+} CluesType;
+
+typedef struct {
+  String20 wordName;
+  CluesType clues[MAX_CLUES];
+  int numOfClues;
+} WordType;
+
+typedef WordType Words[MAX_WORDS]; // this is the "database"
+
+// Game Phase Functions
+int isUniqueLetter(char lettersContext[], int letterCountInRow);
+char generateUniqueRandomLetter(char usedLetters[], int size);
+int SearchLetter(char array[], int size, char key);
+void CreateBoard(char board[][MAX_BOARD_SIZE], int *row, int *col);
+int QuestionAnswerPhase(Words wordsDatabase, int numWords, String20 usedWordTracker[], int *numUsedWords);
+int isWin(char board[][MAX_BOARD_SIZE], int row, int col);
+int CheckRowStatus(char currentRow[], int col);
+void GamePhase(Words *wordsDatabase, int *numWords);
+
+// Admin Phase Functions
+void SortEntriesAlphabetically(Words wordsDatabase, int *numWords);
+void DisplayAllWords(Words wordsDatabase, int *numWords);
+int SearchWordIndex(Words wordsDatabase, int *numWords, String20 key);
+int SearchClueIndex(CluesType clues[], int *numOfClues, String30 key);
+void OverwriteWord(Words wordsDatabase, int *numWords, String20 origWord, String20 newWord);
+void OverwriteClue(CluesType clues[], int *numOfClues, String30 newClue, String30 newClueValue);
+void AddCluesAction(Words wordsDatabase, int wordIndex);
+void AddCluesUI(Words wordsDatabase, int *numWords);
+void ViewClues(Words wordsDatabase, int *numWords);
+void ViewWords(Words wordsDatabase, int *numWords);
+void AddWord(Words wordsDatabase, int *numWords);
+void ModifyEntry(Words wordsDatabase, int *numWords);
+void DeleteWord(Words wordsDatabase, int *numWords);
+void DeleteClue(Words wordsDatabase, int *numWords);
+void Import(Words wordsDatabase, int *numWords);
+void Export(Words wordsDatabase, int *numWords);
+void AdminMenu(Words *wordsDatabase, int *numWords);
 
 /* #############################################
  * ################ GAME PHASE #################
@@ -34,16 +74,6 @@ int isUniqueLetter(char lettersContext[], int letterCountInRow) {
     }
   }
   return uniqueFlag;
-}
-
-int SearchLetter(char row[], int size, char key) {
-  int i;
-  for (i = 0; i < size; i++) {
-    if (row[i] == key) {
-      return i;
-    }
-  }
-  return -1;
 }
 
 char generateUniqueRandomLetter(char usedLetters[], int size) {
@@ -87,7 +117,7 @@ char generateUniqueRandomLetter2(char usedLetters[]) {
  *
  * TODO: to be called when selecting letter from board
  * */
-int SearchLetterIndex(char row[], int size, char key) {
+int SearchLetter(char row[], int size, char key) {
   int i;
   for (i = 0; i < size; i++) {
     if (row[i] == key) {
@@ -139,113 +169,39 @@ void DisplayBoard(char board[][MAX_BOARD_SIZE], int row, int col) {
  * check if question is unique (not yet used in the game/grid)
  * --> if unique, then proceed with the question
  * --> if not, then generate another question
- *  Returns 1 if the question trivia is answered correctly, otherwise 0
+ *  Returns the index of the random word, otherwise -1
  * */
-int QuestionAnswerPhase(Words wordsDatabase, int *numWords, String20 usedWordTracker[], int *numUsedWords, char board[][MAX_BOARD_SIZE], int letterIndex) {
+int QuestionAnswerPhase(Words wordsDatabase, int numWords, String20 usedWordTracker[], int *numUsedWords) {
   int i, j, randWordIndex, randClueIndex, alreadyUsed;
-  String20 userAnswerInput;
+  srand(time(NULL));
 
-  // loop until random word is unique or not already used (not included in usedWordTracker)
+  // loop until random word is unique (not included in usedWordTracker)
   do {
-    randWordIndex = rand() % *numWords;
-    alreadyUsed = 0; // assume word is not yet used
+    randWordIndex = rand() % numWords;
+    alreadyUsed = 0;
     for (i = 0; i < *numUsedWords; i++) {
       if (strcmp(wordsDatabase[randWordIndex].wordName, usedWordTracker[i]) == 0) {
         alreadyUsed = 1;
         // break;
       }
     }
+  } while (alreadyUsed);
 
-    // If the word has not been used, add it to the usedWordTracker array
-    if (alreadyUsed == 0) {
-      strcpy(usedWordTracker[*numUsedWords], wordsDatabase[randWordIndex].wordName);
-      (*numUsedWords)++;
-    }
-
-  } while (alreadyUsed == 1);
-
-
-  // START GAME: display a random clue/trivia (only 1) of the random word
-  if (alreadyUsed == 0) {
+  if (!alreadyUsed) {
+    // START GAME: display a random clue/trivia (only 1) of the random word
     randClueIndex = rand() % wordsDatabase[randWordIndex].numOfClues;
     printf("\n");
     printf("TRIVIA: %s\n", wordsDatabase[randWordIndex].clues[randClueIndex].relation);
     printf("--> %s\n", wordsDatabase[randWordIndex].clues[randClueIndex].relationValue);
-    printf("CORRECT ANSWER FOR DEBUGGING: %s\n", wordsDatabase[randWordIndex].wordName);
 
-    printf("Enter your answer [enter 0 to exit game (auto lose)]: ");
-    scanf("%20s", userAnswerInput);
-
-    if (strcmp(userAnswerInput, "0") == 0) {
-      printf("Exiting game...\n");
-      return 0;
-    }
-
-    // printf("before strcmp\n");
-    // printf("randWordIndex: %d\n", randWordIndex);
-    // printf("userAnswerInput: %s\n", userAnswerInput);
-
-    if (strcmp(userAnswerInput, wordsDatabase[randWordIndex].wordName) == 0) {
-      // printf("after strcmp\n");
-      board[i][letterIndex] = '*'; // replace the letter with '*' if answered correctly
-      return 1;
-    }
-    else {
-      // printf("after strcmp\n");
-      board[i][letterIndex] = '-';
-      return 0;
-    }
-  }          
-
-
+    // if word is not yet used, then push random word to usedWordTracker
+    strcpy(usedWordTracker[i], wordsDatabase[randWordIndex].wordName);
+    (*numUsedWords)++;
+    return randWordIndex;
+  }
 
   return -1;
 }
-
-// int QuestionAnswerPhase2(Words wordsDatabase, int numWords, String20 usedWordTracker[], int *numUsedWords) {
-//   int i, j, randWordIndex, randClueIndex, alreadyUsed;
-//
-//   // initialize usedWordTracker array
-//   // for (int n = 0; n < MAX_WORDS; n++) {
-//   //   usedWordTracker[n][0] = '\0';
-//   // }
-//
-//   // loop until random word is unique or not already used (not included in usedWordTracker)
-//   // do {
-//   //   randWordIndex = rand() % numWords;
-//   //   alreadyUsed = 0; // assume word is not yet used
-//   //   for (i = 0; i < *numUsedWords; i++) {
-//   //     if (strcmp(wordsDatabase[randWordIndex].wordName, usedWordTracker[i]) == 0) {
-//   //       alreadyUsed = 1;
-//   //       // break;
-//   //     }
-//   //   }
-//   //
-//   //   // If the word has not been used, add it to the usedWordTracker array
-//   //   if (alreadyUsed == 0) {
-//   //     strcpy(usedWordTracker[*numUsedWords], wordsDatabase[randWordIndex].wordName);
-//   //     (*numUsedWords)++;
-//   //   }
-//   //
-//   // } while (*numUsedWords > MAX_WORDS || alreadyUsed == 1);
-//
-//   // if (alreadyUsed == 0) {
-//     // START GAME: display a random clue/trivia (only 1) of the random word
-//     randWordIndex = rand() % numWords;
-//     randClueIndex = rand() % wordsDatabase[randWordIndex].numOfClues;
-//     printf("\n");
-//     printf("TRIVIA: %s\n", wordsDatabase[randWordIndex].clues[randClueIndex].relation);
-//     printf("--> %s\n", wordsDatabase[randWordIndex].clues[randClueIndex].relationValue);
-//     printf("CORRECT ANSWER FOR DEBUGGING: %s\n", wordsDatabase[randWordIndex].wordName);
-//
-//     // if word is not yet used, then push random word to usedWordTracker
-//     // strcpy(usedWordTracker[i], wordsDatabase[randWordIndex].wordName);
-//     // (*numUsedWords)++;
-//     return randWordIndex;
-//   // }
-//
-//   return -1;
-// }
 
 /*
  * Determine if the player wins based on contents in the 2D array of characters (2D strings).
@@ -280,7 +236,7 @@ int isWin(char board[][MAX_BOARD_SIZE], int row, int col) {
 
 // Determine if the game is over based on the contents in the 2D array of
 // characters. calls checkWinningConditions()
-// Returns 1 if can proceed to next row, otherwise 0
+// TODO: to be called every after question answered
 int CheckRowStatus(char currentRow[], int col) {
   // check if col == numOfWrong (which is '-');
   int i, canProceed = 0;
@@ -296,13 +252,8 @@ int CheckRowStatus(char currentRow[], int col) {
 void GamePhase(Words *wordsDatabase, int *numWords) {
   int i = 0, j = 0;
   int row = 0, col = 0;
-  String20 usedWordTracker[MAX_WORDS];  // to be used in the game phase (to check if word has already been used in the game)
+  String20 usedWordTracker[150]; // to be used in the game phase (to check if word has already been used in the game)
   int numUsedWords = 0;
-
-  // initialize usedWordTracker array
-  for (int n = 0; n < MAX_WORDS; n++) {
-    usedWordTracker[n][0] = '\0';
-  }
 
   /******INITIALIZE*******/
 
@@ -339,25 +290,20 @@ void GamePhase(Words *wordsDatabase, int *numWords) {
 
   /******PLAYING PHASE*******/
   // TODO: select letter from board, then ask question (calls questionPhase())
+  String20 userAnswerInput;
   char letterInput;
-  int letterIndex = -1, canProceedToNextRow = 0, status = 0;
+  int randWordIndex, letterIndex, canProceedToNextRow;
 
   for (i = 0; i < row; i++) {
     printf("\n---------------------------------------\n");
     DisplayBoard(board, row, col);
-    canProceedToNextRow = 0;
-    j = 0;
-    status = 0;
-      while (j < col && status == 0) {
-
-        // reset userAnswerInput
-        // memset(userAnswerInput, 0, sizeof *userAnswerInput);
-
+    do {
+      for (j = 0; j < col && canProceedToNextRow == 0; j++) {
         printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i + 1, i + 1);
         scanf(" %c", &letterInput);
 
-          printf("\nInvalid input. Please try again.\n");
         while (letterInput == '*' || letterInput == '-') {
+          printf("\nInvalid input. Please try again.\n");
           printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i + 1, i + 1);
           scanf(" %c", &letterInput);
         }
@@ -373,30 +319,61 @@ void GamePhase(Words *wordsDatabase, int *numWords) {
           printf("Letter does not exist in the current row. Please try again.\n");
           printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i + 1, i + 1);
           scanf(" %c", &letterInput);
+          letterIndex = SearchLetter(board[i], col, letterInput);
           // convert letterInput to uppercase
           if (letterInput >= 'a' && letterInput <= 'z')
             letterInput = letterInput - 32;
-          letterIndex = SearchLetter(board[i], col, letterInput);
         }
 
         // if letter exists, then proceed with the question (call database for word)
         if (letterIndex != -1 && letterInput != '*' && letterInput != '-') {
-          status = QuestionAnswerPhase(*wordsDatabase, numWords, usedWordTracker, &numUsedWords, board, letterIndex);
-        } // if letter exists
-      
-        canProceedToNextRow = CheckRowStatus(board[i], col);
-        if (status == 0) {
-          // display new board with the updated row that has '-'
-          DisplayBoard(board, row, col);
-          printf("\n");
-          printf("Wrong answer! Choose another letter in the current row...\n");
-          j++;
-        }  
-        if (status == 1) {
-          printf("Correct answer! Proceeding to the next row...\n");
-        }
-      } // j col
+          randWordIndex = QuestionAnswerPhase(*wordsDatabase, *numWords, usedWordTracker, &numUsedWords);
 
+          memset(userAnswerInput, 0, sizeof *userAnswerInput);
+          printf("Enter your answer [enter 0 to exit game (auto lose)]: ");
+          scanf("%20s", userAnswerInput);
+
+          if (strcmp(userAnswerInput, "0") == 0) {
+            printf("Exiting game...\n");
+            return;
+          }
+
+          if (strcmp(userAnswerInput, wordsDatabase[randWordIndex]->wordName) == 0) {
+            board[i][letterIndex] = '*'; // replace the letter with '*' if answered correctly
+          }
+          else {
+            board[i][letterIndex] = '-';
+          }
+
+          canProceedToNextRow = CheckRowStatus(board[i], col);
+          if (canProceedToNextRow == 0) {
+            // display new board with the updated row that has '-'
+            DisplayBoard(board, row, col);
+            printf("\n");
+            printf("Wrong answer! Choose another letter in the current row...\n");
+          } else if (canProceedToNextRow == 1) {
+            printf("Correct answer! Proceeding to the next row...\n");
+            break;
+          }
+          // switch (canProceedToNextRow) {
+          //   case 0:
+          //   // display new board with the updated row that has '-'
+          //     DisplayBoard(board, row, col);
+          //     printf("\n");
+          //     printf("Wrong answer! Choose another letter in the current row...\n");
+          //     memset(userAnswerInput, 0, sizeof *userAnswerInput);
+          //     break;
+          //   case 1:
+          //     printf("Correct answer! Proceeding to the next row...\n");
+          //     memset(userAnswerInput, 0, sizeof *userAnswerInput);
+          //     break;
+          //   default:
+          //     break;
+          // }
+
+        } // if letter exists
+      } // j col
+    } while (canProceedToNextRow == 0);
   } // i row
 
   /******CHECK GAME STATUS IF WIN OR LOSE*******/

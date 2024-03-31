@@ -180,7 +180,7 @@ int checkRowStatus(char rowElems[], int *row) {
 }
 
 
-int RandWordQuestion(Entries wordsDatabase, int numWords, Word20 usedWordTracker[], int *numUsedWords) {
+int QuestionAnswerPhase(Entries wordsDatabase, int numWords, Word20 usedWordTracker[], int *numUsedWords) {
   int i, randWordIndex, alreadyUsed;
   srand(time(NULL));
 

@@ -24,7 +24,7 @@ int isUniqueLetter(char lettersContext[], int letterCountInRow);
 char generateUniqueRandomLetter(char usedLetters[], int size);
 int SearchLetter(char array[], int size, char key);
 void CreateBoard(char board[][MAX_BOARD_SIZE], int *row, int *col);
-int RandWordQuestion(Words wordsDatabase, int numWords, String20 usedWordTracker[], int *numUsedWords);
+int QuestionAnswerPhase(Words wordsDatabase, int *numWords, String20 usedWordTracker[], int *numUsedWords, char board[][MAX_BOARD_SIZE], int letterIndex);
 int isWin(char board[][MAX_BOARD_SIZE], int row, int col);
 int CheckRowStatus(char currentRow[], int col);
 void GamePhase(Words *wordsDatabase, int *numWords);
@@ -34,8 +34,10 @@ void SortEntriesAlphabetically(Words wordsDatabase, int *numWords);
 void DisplayAllWords(Words wordsDatabase, int *numWords);
 int SearchWordIndex(Words wordsDatabase, int *numWords, String20 key);
 int SearchClueIndex(CluesType clues[], int *numOfClues, String30 key);
-void OverwriteWord(Words wordsDatabase, int *numWords, String20 origWord, String20 newWord);
-void OverwriteClue(CluesType clues[], int *numOfClues, String30 newClue, String30 newClueValue);
+void OverwriteWord(Words wordsDatabase, int *numWords, String20 origWord,
+                   String20 newWord);
+void OverwriteClue(CluesType clues[], int *numOfClues, String30 newClue,
+                   String30 newClueValue);
 void AddCluesAction(Words wordsDatabase, int wordIndex);
 void AddCluesUI(Words wordsDatabase, int *numWords);
 void ViewClues(Words wordsDatabase, int *numWords);
