@@ -21,21 +21,6 @@
 /*
 * Returns 1 if all letters in the array are unique, otherwise 0
  * */
-int isUniqueLetter(char lettersContext[], int letterCountInRow) {
-  int i, j, uniqueFlag;
-
-  uniqueFlag = 1; // assume all words are unique
-
-  for (i = 0; i < letterCountInRow; i++) {
-    for (j = i + 1; j < letterCountInRow; j++) {
-      if (lettersContext[i] == lettersContext[j]) {
-        uniqueFlag = 0;
-      }
-    }
-  }
-  return uniqueFlag;
-}
-
 int SearchLetter(char row[], int size, char key) {
   int i;
   for (i = 0; i < size; i++) {
@@ -46,21 +31,7 @@ int SearchLetter(char row[], int size, char key) {
   return -1;
 }
 
-char generateUniqueRandomLetter(char usedLetters[], int size) {
-  int i;
-  char letters[27] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-  char letter = letters[rand() % (sizeof(letters) - 1)];
-  // check if the letter has already been used
-  for (i = 0; i < size; i++) {
-    if (usedLetters[i] == letter) {
-      return generateUniqueRandomLetter(usedLetters, size);
-    }
-  }
-
-  return letter;
-}
-
-char generateUniqueRandomLetter2(char usedLetters[]) {
+char generateUniqueRandomLetter(char usedLetters[]) {
   int i;
   char letters[27] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   char letter;
@@ -83,21 +54,6 @@ char generateUniqueRandomLetter2(char usedLetters[]) {
 }
 
 /*
- * Returns the index of the key, otherwise -1
- *
- * TODO: to be called when selecting letter from board
- * */
-int SearchLetterIndex(char row[], int size, char key) {
-  int i;
-  for (i = 0; i < size; i++) {
-    if (row[i] == key) {
-      return i;
-    }
-  }
-  return -1;
-}
-
-/*
  * Populates the board based on the Words in the file.
  * --> generate random letters but unique for each row
  * */
@@ -111,8 +67,7 @@ void CreateBoard(char board[][MAX_BOARD_SIZE], int *row, int *col) {
   for (i = 0; i < *row; i++) {
     memset(usedLetters, 0, sizeof usedLetters); // clear usedLetters array
     for (j = 0; j < *col; j++) {
-      uniqueLetter = generateUniqueRandomLetter2(usedLetters);
-      // uniqueLetter = generateUniqueRandomLetter(usedLetters, j);
+      uniqueLetter = generateUniqueRandomLetter(usedLetters);
       usedLetters[j] = uniqueLetter;
       // push the letter to board if not yet used
       board[i][j] = uniqueLetter;
@@ -131,14 +86,7 @@ void DisplayBoard(char board[][MAX_BOARD_SIZE], int row, int col) {
   }
 }
 
-// --> ensure word/answer is unique (not yet used in the game/grid) - push to usedWordTracker array
-// --> if answered correctly, replace the letter with '*', otherwise '-'
-
 /*
- * is responsible for generating unique question from wordsDatabase
- * check if question is unique (not yet used in the game/grid)
- * --> if unique, then proceed with the question
- * --> if not, then generate another question
  *  Returns 1 if the question trivia is answered correctly, otherwise 0
  * */
 int QuestionAnswerPhase(Words wordsDatabase, int *numWords, String20 usedWordTracker[], int *numUsedWords, char board[][MAX_BOARD_SIZE], int letterIndex, int currentRow) {
@@ -201,51 +149,6 @@ int QuestionAnswerPhase(Words wordsDatabase, int *numWords, String20 usedWordTra
 
   return -1;
 }
-
-// int QuestionAnswerPhase2(Words wordsDatabase, int numWords, String20 usedWordTracker[], int *numUsedWords) {
-//   int i, j, randWordIndex, randClueIndex, alreadyUsed;
-//
-//   // initialize usedWordTracker array
-//   // for (int n = 0; n < MAX_WORDS; n++) {
-//   //   usedWordTracker[n][0] = '\0';
-//   // }
-//
-//   // loop until random word is unique or not already used (not included in usedWordTracker)
-//   // do {
-//   //   randWordIndex = rand() % numWords;
-//   //   alreadyUsed = 0; // assume word is not yet used
-//   //   for (i = 0; i < *numUsedWords; i++) {
-//   //     if (strcmp(wordsDatabase[randWordIndex].wordName, usedWordTracker[i]) == 0) {
-//   //       alreadyUsed = 1;
-//   //       // break;
-//   //     }
-//   //   }
-//   //
-//   //   // If the word has not been used, add it to the usedWordTracker array
-//   //   if (alreadyUsed == 0) {
-//   //     strcpy(usedWordTracker[*numUsedWords], wordsDatabase[randWordIndex].wordName);
-//   //     (*numUsedWords)++;
-//   //   }
-//   //
-//   // } while (*numUsedWords > MAX_WORDS || alreadyUsed == 1);
-//
-//   // if (alreadyUsed == 0) {
-//     // START GAME: display a random clue/trivia (only 1) of the random word
-//     randWordIndex = rand() % numWords;
-//     randClueIndex = rand() % wordsDatabase[randWordIndex].numOfClues;
-//     printf("\n");
-//     printf("TRIVIA: %s\n", wordsDatabase[randWordIndex].clues[randClueIndex].relation);
-//     printf("--> %s\n", wordsDatabase[randWordIndex].clues[randClueIndex].relationValue);
-//     printf("CORRECT ANSWER FOR DEBUGGING: %s\n", wordsDatabase[randWordIndex].wordName);
-//
-//     // if word is not yet used, then push random word to usedWordTracker
-//     // strcpy(usedWordTracker[i], wordsDatabase[randWordIndex].wordName);
-//     // (*numUsedWords)++;
-//     return randWordIndex;
-//   // }
-//
-//   return -1;
-// }
 
 /*
  * Determine if the player wins based on contents in the 2D array of characters (2D strings).
@@ -482,22 +385,8 @@ int SearchWordIndex(Words wordsDatabase, int *numWords, String20 key)
   return -1;
 }
 
-int SearchClueIndex(CluesType clues[], int *numOfClues, String30 key)
-{
-  int i;
-  for (i = 0; i < *numOfClues; i++)
-  {
-    if (strcmp(key, clues[i].relation) == 0)
-    {
-      return i;
-    }
-  }
-  return -1;
-}
-
 /*
  * Assumes that word already exists in the database.
- * TODO: check if this is 'callable' in Import()
  * */
 void OverwriteWord(Words wordsDatabase, int *numWords, String20 origWord, String20 newWord)
 {
@@ -513,42 +402,6 @@ void OverwriteWord(Words wordsDatabase, int *numWords, String20 origWord, String
   else 
   {
     printf("Word already exists in the database. Exiting...\n");
-  }
-}
-
-/*
- * Assume that we are operating on the clues of the current wordsDatabase[origIndex]->wordname
- * TODO: check if this is necessary to be called in ImportDataFromFile()
- * */
-void OverwriteClue(CluesType clues[], int *numOfClues, String30 newClue, String30 newClueValue)
-{
-  int i, j, currentClueIndex;
-
-  // check if newClue exists in the current word
-  for (i = 0; i < *numOfClues; i++)
-  {
-    if (strcmp(newClue, clues[i].relation) == 0)
-    {
-      currentClueIndex = i;
-    }
-  }
-
-  if (*numOfClues > MAX_CLUES)
-  {
-    printf("Clues maximum limit (10) reached.\n");
-    return;
-  }
-
-  // if clue exists, then it will be overwritten
-  if (currentClueIndex >= 0)
-  {
-    strcpy(clues[currentClueIndex].relation, newClue);
-    strcpy(clues[currentClueIndex].relationValue, newClueValue);
-    printf("Clues successfully overwritten/modified.\n");
-  }
-  else
-  {
-    printf("Clue does not exist in the database.\n");
   }
 }
 
@@ -991,7 +844,7 @@ void Import(Words wordsDatabase, int *numWords) {
 
   importedWordsDatabase[i].numOfClues = 0;
 
-  // HACK: STORING PHASE
+  // STORING PHASE
   while (fgets(line, sizeof(line), file) != NULL) {
 
     // handle empty line (<nextline>), indicates that next line will be a word
@@ -1049,7 +902,7 @@ void Import(Words wordsDatabase, int *numWords) {
  
   fclose(file);
 
-  // HACK: COMPARING PHASE, assigns what to be overwritten
+  // COMPARING PHASE, assigns what to be overwritten
   if (importedNumWords == 0) {
     printf("No words found in the file. Closing file...\n");
   }
@@ -1077,7 +930,7 @@ void Import(Words wordsDatabase, int *numWords) {
         willOverwrite = 0;
       }
 
-      // HACK: OVERWRITING PHASE
+      // OVERWRITING PHASE
       if (willOverwrite == 1) {
         if (importedWordsDatabase[i].numOfClues > MAX_CLUES) {
           printf("Clues maximum limit (10) reached. Skipping word entry.\n");
