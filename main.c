@@ -132,33 +132,92 @@ void DisplayBoard(char board[][MAX_BOARD_SIZE], int row, int col) {
  *  Returns the index of the random word, otherwise -1
  * */
 int RandWordQuestion(Words wordsDatabase, int numWords, String20 usedWordTracker[], int *numUsedWords) {
-  int i, randWordIndex, alreadyUsed;
-  srand(time(NULL));
+  int i, j, randWordIndex, randClueIndex, alreadyUsed;
 
-  // loop until random word is unique (not included in usedWordTracker)
+  // initialize usedWordTracker array
+  for (int n = 0; n < MAX_WORDS; n++) {
+    usedWordTracker[n][0] = '\0';
+  }
+
+  // loop until random word is unique or not already used (not included in usedWordTracker)
   do {
     randWordIndex = rand() % numWords;
-    alreadyUsed = 0;
+    alreadyUsed = 0; // assume word is not yet used
     for (i = 0; i < *numUsedWords; i++) {
       if (strcmp(wordsDatabase[randWordIndex].wordName, usedWordTracker[i]) == 0) {
         alreadyUsed = 1;
         // break;
       }
     }
-  } while (alreadyUsed);
 
-  if (!alreadyUsed) {
+    // If the word has not been used, add it to the usedWordTracker array
+    if (alreadyUsed == 0) {
+      strcpy(usedWordTracker[*numUsedWords], wordsDatabase[randWordIndex].wordName);
+      (*numUsedWords)++;
+    }
+
+  } while (*numUsedWords > MAX_WORDS || alreadyUsed == 1);
+
+  if (alreadyUsed == 0) {
     // START GAME: display a random clue/trivia (only 1) of the random word
+    randClueIndex = rand() % wordsDatabase[randWordIndex].numOfClues;
     printf("\n");
-    printf("TRIVIA: %s\n", wordsDatabase[randWordIndex].wordName);
-    printf("--> %s\n", wordsDatabase[randWordIndex].wordName);
+    printf("TRIVIA: %s\n", wordsDatabase[randWordIndex].clues[randClueIndex].relation);
+    printf("--> %s\n", wordsDatabase[randWordIndex].clues[randClueIndex].relationValue);
+    printf("CORRECT ANSWER FOR DEBUGGING: %s\n", wordsDatabase[randWordIndex].wordName);
 
     // if word is not yet used, then push random word to usedWordTracker
-    strcpy(usedWordTracker[i], wordsDatabase[randWordIndex].wordName);
-    (*numUsedWords)++;
+    // strcpy(usedWordTracker[i], wordsDatabase[randWordIndex].wordName);
+    // (*numUsedWords)++;
+    return randWordIndex;
   }
 
-  return randWordIndex;
+  return -1;
+}
+
+int RandWordQuestion2(Words wordsDatabase, int numWords, String20 usedWordTracker[], int *numUsedWords) {
+  int i, j, randWordIndex, randClueIndex, alreadyUsed;
+
+  // initialize usedWordTracker array
+  // for (int n = 0; n < MAX_WORDS; n++) {
+  //   usedWordTracker[n][0] = '\0';
+  // }
+
+  // loop until random word is unique or not already used (not included in usedWordTracker)
+  // do {
+  //   randWordIndex = rand() % numWords;
+  //   alreadyUsed = 0; // assume word is not yet used
+  //   for (i = 0; i < *numUsedWords; i++) {
+  //     if (strcmp(wordsDatabase[randWordIndex].wordName, usedWordTracker[i]) == 0) {
+  //       alreadyUsed = 1;
+  //       // break;
+  //     }
+  //   }
+  //
+  //   // If the word has not been used, add it to the usedWordTracker array
+  //   if (alreadyUsed == 0) {
+  //     strcpy(usedWordTracker[*numUsedWords], wordsDatabase[randWordIndex].wordName);
+  //     (*numUsedWords)++;
+  //   }
+  //
+  // } while (*numUsedWords > MAX_WORDS || alreadyUsed == 1);
+
+  // if (alreadyUsed == 0) {
+    // START GAME: display a random clue/trivia (only 1) of the random word
+    randWordIndex = rand() % numWords;
+    randClueIndex = rand() % wordsDatabase[randWordIndex].numOfClues;
+    printf("\n");
+    printf("TRIVIA: %s\n", wordsDatabase[randWordIndex].clues[randClueIndex].relation);
+    printf("--> %s\n", wordsDatabase[randWordIndex].clues[randClueIndex].relationValue);
+    printf("CORRECT ANSWER FOR DEBUGGING: %s\n", wordsDatabase[randWordIndex].wordName);
+
+    // if word is not yet used, then push random word to usedWordTracker
+    // strcpy(usedWordTracker[i], wordsDatabase[randWordIndex].wordName);
+    // (*numUsedWords)++;
+    return randWordIndex;
+  // }
+
+  return -1;
 }
 
 /*
@@ -180,6 +239,7 @@ int isWin(char board[][MAX_BOARD_SIZE], int row, int col) {
     }
 
     if (!winFlag) {
+      // printf("You LOSE!\n");
       return 0;
     }
   }
@@ -187,6 +247,7 @@ int isWin(char board[][MAX_BOARD_SIZE], int row, int col) {
   // starCount should be at least equal to row (starCount >= row)
 
 
+  // printf("You WIN!\n");
   return 1;
 }
 
@@ -243,77 +304,95 @@ void GamePhase(Words *wordsDatabase, int *numWords) {
   // only create board if all good
   char board[MAX_BOARD_SIZE][MAX_BOARD_SIZE];
   CreateBoard(board, &row, &col);
-  DisplayBoard(board, row, col);
 
   /******PLAYING PHASE*******/
-  // // TODO: select letter from board, then ask question (calls questionPhase())
-  // String20 userAnswerInput;
-  // char letterInput;
-  // int randWordIndex, letterIndex, canProceedToNextRow;
-  //
-  // for (i = 0; i < row; i++) {
-  //   printf("\n---------------------------------------\n");
-  //   DisplayBoard(board, row, col);
-  //
-  //   do {
-  //     for (j = 0; j < col; j++) {
-  //       printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i + 1, i + 1);
-  //       scanf(" %c", &letterInput);
-  //
-  //       while (letterInput == '*' || letterInput == '-') {
-  //         printf("\nInvalid input. Please try again.\n");
-  //         scanf(" %c", &letterInput);
-  //       }
-  //
-  //       // convert letterInput to uppercase
-  //       if (letterInput >= 'a' && letterInput <= 'z')
-  //         letterInput = letterInput - 32;
-  //
-  //       letterIndex = SearchLetter(board[i], col, letterInput);
-  //
-  //       // if letter does not exist
-  //       while (letterIndex == -1) {
-  //         printf("Letter does not exist in the current row. Please try again.\n");
-  //         scanf(" %c", &letterInput);
-  //         // letterIndex = SearchLetter(board[i], col, letterInput);
-  //       }
-  //
-  //       // if letter exists, then proceed with the question (call database for word)
-  //       if (letterIndex != -1 && letterInput != '*' && letterInput != '-') {
-  //         randWordIndex = RandWordQuestion(*wordsDatabase, *numWords, usedWordTracker, &numUsedWords);
-  //
-  //         printf("Enter your answer [enter 0 to exit game (auto lose)]: ");
-  //         scanf("%s", userAnswerInput);
-  //         printf("\n");
-  //
-  //         if (strcmp(userAnswerInput, "0") == 0) {
-  //           printf("Exiting game...\n");
-  //           return;
-  //         }
-  //
-  //         if (strcmp(userAnswerInput, wordsDatabase[randWordIndex]->wordName) == 0)
-  //           board[i][letterIndex] = '*'; // replace the letter with '*' if answered correctly
-  //         else
-  //           board[i][letterIndex] = '-';
-  //
-  //         canProceedToNextRow = CheckRowStatus(board[i], col);
-  //
-  //         if (canProceedToNextRow == 0) {
-  //           // display new board with the updated row that has '-'
-  //           DisplayBoard(board, row, col);
-  //           printf("\n");
-  //           printf("Wrong answer! Choose another letter in the current row...\n");
-  //         }
-  //         if (canProceedToNextRow == 1)
-  //           printf("Correct answer! Proceeding to the next row...\n");
-  //       }
-  //     } // j col
-  //   } while (canProceedToNextRow == 0);
-  // } // i row
-  //
-  // /******CHECK GAME STATUS IF WIN OR LOSE*******/
-  // int winFlag;
-  // isWin(board, row, col);
+  // TODO: select letter from board, then ask question (calls questionPhase())
+  String20 userAnswerInput;
+  char letterInput;
+  int randWordIndex, letterIndex, canProceedToNextRow;
+
+  for (i = 0; i < row; i++) {
+    printf("\n---------------------------------------\n");
+    DisplayBoard(board, row, col);
+    canProceedToNextRow = 0;
+    memset(userAnswerInput, 0, sizeof *userAnswerInput);
+    do {
+      for (j = 0; j < col && canProceedToNextRow == 0; j++) {
+
+        // reset userAnswerInput
+        memset(userAnswerInput, 0, sizeof *userAnswerInput);
+
+        printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i + 1, i + 1);
+        scanf(" %c", &letterInput);
+
+        while (letterInput == '*' || letterInput == '-') {
+          printf("\nInvalid input. Please try again.\n");
+          printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i + 1, i + 1);
+          scanf(" %c", &letterInput);
+        }
+
+        // convert letterInput to uppercase
+        if (letterInput >= 'a' && letterInput <= 'z')
+          letterInput = letterInput - 32;
+
+        letterIndex = SearchLetter(board[i], col, letterInput);
+
+        // if letter does not exist
+        while (letterIndex == -1) {
+          printf("Letter does not exist in the current row. Please try again.\n");
+          printf("[ ROW %d ] Choose the letter you want to guess in row %d: ", i + 1, i + 1);
+          scanf(" %c", &letterInput);
+          letterIndex = SearchLetter(board[i], col, letterInput);
+          // convert letterInput to uppercase
+          if (letterInput >= 'a' && letterInput <= 'z')
+            letterInput = letterInput - 32;
+        }
+
+        // if letter exists, then proceed with the question (call database for word)
+        if (letterIndex != -1 && letterInput != '*' && letterInput != '-') {
+          randWordIndex = RandWordQuestion2(*wordsDatabase, *numWords, usedWordTracker, &numUsedWords);
+
+          printf("Enter your answer [enter 0 to exit game (auto lose)]: ");
+          scanf("%20s", userAnswerInput);
+
+          if (strcmp(userAnswerInput, "0") == 0) {
+            printf("Exiting game...\n");
+            return;
+          }
+
+          printf("before strcmp\n");
+          printf("randWordIndex: %d\n", randWordIndex);
+          printf("userAnswerInput: %s\n", userAnswerInput);
+
+          if (strcmp(userAnswerInput, wordsDatabase[randWordIndex]->wordName) == 0) {
+            printf("after strcmp\n");
+            board[i][letterIndex] = '*'; // replace the letter with '*' if answered correctly
+          }
+          else {
+            printf("after strcmp\n");
+            board[i][letterIndex] = '-';
+          }
+
+          printf("proceed\n");
+          canProceedToNextRow = CheckRowStatus(board[i], col);
+          if (canProceedToNextRow == 0) {
+            // display new board with the updated row that has '-'
+            DisplayBoard(board, row, col);
+            printf("\n");
+            printf("Wrong answer! Choose another letter in the current row...\n");
+          }  
+          if (canProceedToNextRow == 1) {
+            printf("Correct answer! Proceeding to the next row...\n");
+          }
+        } // if letter exists
+      } // j col
+    } while (canProceedToNextRow == 0);
+
+  } // i row
+
+  /******CHECK GAME STATUS IF WIN OR LOSE*******/
+  int winFlag;
+  isWin(board, row, col);
 }
 
 /* #############################################
