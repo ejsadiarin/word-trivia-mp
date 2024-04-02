@@ -787,7 +787,7 @@ AddWord(Words wordsDatabase, int *numWords)
 void 
 ModifyEntry(Words wordsDatabase, int *numWords)
 {
-  int i, j, origIndex, choice = -1, clueChoiceIndex;
+  int i, j, origIndex, choice = -1, clueChoiceIndex, whatToModify;
   String20 input, newWord;
   String30 newClue, newClueValue;
 
@@ -853,7 +853,6 @@ ModifyEntry(Words wordsDatabase, int *numWords)
       }
       else 
       {
-        int whatToModify;
         printf("What to modify? [1] - Relation, [2] - Relation Value: ");
         scanf(" %d", &whatToModify);
         while (whatToModify != 1 && whatToModify != 2)
@@ -865,15 +864,29 @@ ModifyEntry(Words wordsDatabase, int *numWords)
         if (whatToModify == 1) {
 
           printf("Enter new clue (relation): ");
-          scanf("%30s", newClue);
+          scanf(" %[^\n]s", newClue);
 
+          // check if newClue is 30 characters long
+          while (strlen(newClue) > 30)
+          {
+            printf("Relation must be 30 characters or less. Exiting...\n");
+            printf("Enter new clue (relation): ");
+            scanf(" %[^\n]s", newClue);
+          }
           strcpy(wordsDatabase[origIndex].clues[clueChoiceIndex].relation, newClue);
           printf("Relation successfully overwritten/modified.\n");
         }
         else if (whatToModify == 2) {
           printf("\nEnter new clue value (relation value): ");
-          scanf("%30s", newClueValue);
+          scanf(" %[^\n]s", newClueValue);
 
+          // check if newClue is 30 characters long
+          while (strlen(newClueValue) > 30)
+          {
+            printf("Relation must be 30 characters or less. Exiting...\n");
+            printf("Enter new clue value (relation value): ");
+            scanf(" %[^\n]s", newClueValue);
+          }
           strcpy(wordsDatabase[origIndex].clues[clueChoiceIndex].relationValue, newClueValue);
           printf("Relation Value successfully overwritten/modified.\n");
         }
