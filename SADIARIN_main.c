@@ -787,7 +787,7 @@ AddWord(Words wordsDatabase, int *numWords)
 void 
 ModifyEntry(Words wordsDatabase, int *numWords)
 {
-  int i, j, origIndex, choice = -1, clueChoice;
+  int i, j, origIndex, choice = -1, clueChoiceIndex;
   String20 input, newWord;
   String30 newClue, newClueValue;
 
@@ -842,23 +842,41 @@ ModifyEntry(Words wordsDatabase, int *numWords)
       printf("CHOSEN WORD: %s\n", wordsDatabase[origIndex].wordName);
       for (j = 0; j < wordsDatabase[origIndex].numOfClues; j++)
       {
-        printf("[%d] %s: %s\n", j + 1, wordsDatabase[origIndex].clues[j].relation, wordsDatabase[origIndex].clues[j].relationValue);
+        printf("[%d] %s: %s\n", j, wordsDatabase[origIndex].clues[j].relation, wordsDatabase[origIndex].clues[j].relationValue);
       }
-      printf("Choose the number of the clue to modify: ");
-      scanf("%d", &clueChoice);
-      if (clueChoice > wordsDatabase[origIndex].numOfClues || clueChoice < 1)
+
+      printf("Choose the index of the clue to modify: ");
+      scanf("%d", &clueChoiceIndex);
+      if (clueChoiceIndex > wordsDatabase[origIndex].numOfClues - 1 || clueChoiceIndex < 0)
       {
         printf("Invalid number. Exiting...\n");
       }
-      else {
-        printf("Enter new clue (relation): ");
-        scanf("%30s", newClue);
-        printf("\nEnter new clue value (relation value): ");
-        scanf("%30s", newClueValue);
+      else 
+      {
+        int whatToModify;
+        printf("What to modify? [1] - Relation, [2] - Relation Value: ");
+        scanf(" %d", &whatToModify);
+        while (whatToModify != 1 && whatToModify != 2)
+        {
+          printf("Invalid input. Please try again.\n");
+          printf("What to modify? [1] - Relation, [2] - Relation Value: ");
+          scanf(" %d", &whatToModify);
+        }
+        if (whatToModify == 1) {
 
-        strcpy(wordsDatabase[origIndex].clues[clueChoice - 1].relation, newClue);
-        strcpy(wordsDatabase[origIndex].clues[clueChoice - 1].relationValue, newClueValue);
-        printf("Clues successfully overwritten/modified.\n");
+          printf("Enter new clue (relation): ");
+          scanf("%30s", newClue);
+
+          strcpy(wordsDatabase[origIndex].clues[clueChoiceIndex].relation, newClue);
+          printf("Relation successfully overwritten/modified.\n");
+        }
+        else if (whatToModify == 2) {
+          printf("\nEnter new clue value (relation value): ");
+          scanf("%30s", newClueValue);
+
+          strcpy(wordsDatabase[origIndex].clues[clueChoiceIndex].relationValue, newClueValue);
+          printf("Relation Value successfully overwritten/modified.\n");
+        }
       }
     }
     else if (choice == 0)
@@ -991,7 +1009,6 @@ Import(Words wordsDatabase, int *numWords)
   // ask for filename
   printf("\nEnter the filename to import: ");
   scanf("%30s", filename);
-  printf("\n");
 
   strcat(filename, ".txt");
 

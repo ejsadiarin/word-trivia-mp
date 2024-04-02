@@ -1,0 +1,76 @@
+Object: Abacus
+Usage: Compute
+Make: Wood
+
+Object: Apple
+Kind of: fruit
+color: red
+Brand: Mac
+Variety: Washington
+Variety: Fuji
+Variety: Gala
+Source: Tree
+color: green
+Contains: Poison
+Description: crunchy
+
+Object: Bag
+Make: cloth
+Make: leather
+Usage: container
+
+Object: Earthquake
+Kind of: Calamity
+
+Object: Game
+Variety: video
+Variety: board
+
+Object: Habitat
+Synonym: Home
+
+Object: Laptop
+Brand: IBM
+Kind of: computer
+Contains: Program
+
+Object: Mirror
+Kind of: glass
+Usage: reflecting
+
+Object: Money
+Usage: Payment
+Make: paper
+Make: metal
+
+Object: Mug
+Contains: coffee
+Brand of: rootbeer
+Contains: hot chocolate
+
+Object: Pictureframe
+Kind of: Home Decor
+Use: photo display
+
+Object: Program
+Synonym: code
+POS: noun, verb
+Sample: C
+Synonym: Software
+
+Object: Table
+Kind of: Furniture
+Make: Wood, Plastic
+Part: Leg
+Part: Top
+
+Object: Yam
+Kind of: Rootcrop
+Color: Purple
+Synonym: taro
+Usage: ginataan
+Description: starchy vegetable
+
+Object: Zoo
+Contains: Animals
+
